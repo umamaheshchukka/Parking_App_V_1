@@ -1,126 +1,147 @@
-import React from "react";
-import { ImageCarousel } from "./ImageShow";
+import React from 'react';
+import { Form, Input, Button, Radio, Checkbox, Typography, Space } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { startRegUser } from '../../../Actions/Auth/Auth';
+import { useDispatch } from "react-redux";
+import { ImageCarousel } from './ImageShow';
+
+const { Title, Paragraph } = Typography;
+const url = import.meta.env.VITE_PARKING_URL;
 
 const RegisterComponent = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    console.log("Form values:", Object.fromEntries(formData));
+  console.log(url, 'url');
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+
+  const onFinish = (values) => {
+    dispatch(startRegUser(values)).then((res) => {
+      console.log(res);
+    });
   };
 
   return (
-    <div className="flex flex-col lg:flex-row ">
-      <div className="lg:w-1/2 w-full flex items-center justify-center bg-gray-500 rounded-lg">
-        {/* <div className="w-full max-w-2xl"> */}
-        <ImageCarousel />
-        {/* </div> */}
-      </div>
+    <>
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-1 lg:gap-10">
+        {/* Image Carousel Section */}
+        <div className="lg:col-span-2 flex items-center justify-center">
+          <ImageCarousel />
+        </div>
 
-      {/* Right Side - Form */}
-      <div className="lg:w-1/2 w-full flex items-center justify-center p-6 lg:p-12 bg-white">
-        <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-400 text-center mb-6">
-            🚙 Create an Account
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium mb-1">📧 Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              />
+        {/* Form Section */}
+        <div className="flex items-center justify-center">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-2 sm:p-6 transform transition-all duration-300 hover:scale-[1.01]">
+            <div className="flex justify-center mb-4">
+              <Title level={2} className="!text-xl sm:!text-2xl !font-bold !text-transparent !bg-clip-text !bg-gradient-to-r !from-red-500 !to-yellow-500">
+                🚙 Create an Account
+              </Title>
             </div>
 
-            {/* Username */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                👤 Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                placeholder="Choose a username"
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                🔒 Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Create a password"
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-            </div>
-
-            {/* Account Type */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                🧾 Account Type
-              </label>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="looking"
-                    required
-                  />
-                  🅿️ Looking for Parking
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="offering"
-                    required
-                  />
-                  🏠 Have Parking Space
-                </label>
-              </div>
-            </div>
-
-            {/* Agreement */}
-            <div>
-              <label className="flex items-center gap-2">
-                <input type="checkbox" name="agreement" required />✅ I agree to
-                the{" "}
-                <a href="#" className="text-blue-500 hover:underline">
-                  Terms & Privacy
-                </a>
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition"
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={onFinish}
+              autoComplete="off"
+              className="space-y-3"
             >
-              🚀 Create Account
-            </button>
+              <Form.Item
+                label={<span className="text-gray-700 font-medium">📧 Email</span>}
+                name="email"
+                rules={[
+                  { required: true, message: "Email is required" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input
+                  className="rounded-lg border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
+                  placeholder="you@example.com"
+                />
+              </Form.Item>
 
-            {/* Login Link */}
-            <p className="text-center text-sm mt-2">
-              Already have an account?{" "}
-              <a href="#" className="text-blue-500 hover:underline">
-                Login
-              </a>
-            </p>
-          </form>
+              <Form.Item
+                label={<span className="text-gray-700 font-medium">👤 Username</span>}
+                name="name"
+                rules={[{ required: true, message: "Username is required" }]}
+              >
+                <Input
+                  className="rounded-lg border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
+                  placeholder="Choose a username"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={<span className="text-gray-700 font-medium">🔒 Password</span>}
+                name="password"
+                rules={[{ required: true, message: "Password is required" }]}
+              >
+                <Input.Password
+                  className="rounded-lg border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
+                  placeholder="Create a password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={<span className="text-gray-700 font-medium">📱 Phone</span>}
+                name="phone"
+                rules={[{ required: true, message: "Phone number is required" }]}
+              >
+                <Input
+                  maxLength={10}
+                  className="rounded-lg border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
+                  placeholder="Enter phone number"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={<span className="text-gray-700 font-medium">🧾 Account Type</span>}
+                name="role"
+                rules={[{ required: true, message: "Please select an account type" }]}
+              >
+                <Radio.Group className="flex flex-col sm:flex-row gap-4">
+                  <Radio value="customer" className="text-gray-700">🅿️ Looking for Parking</Radio>
+                  <Radio value="owner" className="text-gray-700">🏠 Have Parking Space</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              <Form.Item
+                name="agreement"
+                valuePropName="checked"
+                rules={[
+                  {
+                    validator: (_, value) =>
+                      value ? Promise.resolve() : Promise.reject("You must agree to the terms"),
+                  },
+                ]}
+              >
+                <Checkbox className="text-gray-700">
+                  ✅ I agree to the{' '}
+                  <a href="#" className="text-blue-500 hover:underline">
+                    Terms & Privacy
+                  </a>
+                </Checkbox>
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  className="!bg-blue-600 hover:!bg-blue-700 !border-none !rounded-full !h-9 !font-semibold !text-white transition-colors"
+                >
+                  🚀 Create Account
+                </Button>
+              </Form.Item>
+
+              <Paragraph className="text-center text-gray-600 text-sm">
+                Already have an account?{' '}
+                <a href="/siginin" className="text-blue-500 hover:underline">
+                  Login
+                </a>
+              </Paragraph>
+            </Form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

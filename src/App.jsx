@@ -2,9 +2,11 @@ import Sidebar from "./Cotainer/Layout/SideBar";
 import Bar from "./Cotainer/Layout/Layout";
 import { ConfigProvider } from "antd";
 function App() {
+  const token=localStorage.getItem("token")
+  
   return (
     <ConfigProvider>
-      <Bar />
+      {token?<Sidebar/>:<Bar/>}
     </ConfigProvider>
   );
 }
