@@ -12,15 +12,21 @@ import UserDashboard from "./Cotainer/Pages/User/User";
 import OwnerDashboard from "./Cotainer/Pages/Owner/Owner";
 import Sidebar from "./Cotainer/Layout/SideBar";
 import { ParkingSearch } from "./Cotainer/Pages/User/ParkingManagement/ParkingSearch";
+import App from "./App";
+import HomeContent from "./Cotainer/Pages/Home/Home";
 import "./index.css";
 const mainRoutes = [
   {
     path: "/",
-    element: <Sidebar />,
+    element: <App />,
     children: [
       {
+        path: "home",
+        element: <HomeContent />,
+      },
+      {
         path: "siginin",
-        element: <Register />,
+        element: <Login />,
       },
       {
         path: "register",

@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const url = import.meta.env.VITE_API_URL;
-
-export const startLoginUser = createAsyncThunk(
-  "user/login",
+const url = import.meta.env.VITE_PARKING_URL;
+export const startRegUser = createAsyncThunk(
+  "user/reg",
   async (formData, { rejectWithValue }) => {
-    const Api = `${url}/api/login`;
+    console.log(url,'url')
+    const Api = `${url}/api/users/register`;
     console.log(formData, "form");
     try {
       const response = await axios.post(Api, formData);
@@ -17,6 +17,23 @@ export const startLoginUser = createAsyncThunk(
     }
   }
 );
+export const startLoginUser = createAsyncThunk(
+  "user/login",
+  async (formData, { rejectWithValue }) => {
+    const Api = `${url}/api/users/login`;
+    console.log(formData, "form");
+    console.log(url,'url')
+    try {
+      const response = await axios.post(Api, formData);
+      console.log(response.data, "daas");
+      return response.data;
+    } catch (error) {
+      console.log(error, "err");
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 export const startLogOutUser = createAsyncThunk(
   "user/logout",
   async (formData) => {

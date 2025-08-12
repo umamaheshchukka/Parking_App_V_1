@@ -38,7 +38,7 @@ export function ImageCarousel({ currentStep }) {
   }, []);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-lg">
       {/* Background images with fade animation */}
       {slides.map((slide, index) => (
         <div

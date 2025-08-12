@@ -1,276 +1,145 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  CreditCard,
-  LayoutGrid,
-  Calendar,
-  User,
-  Volume2,
-  List,
-  Clock,
-  MinusCircle,
-  GitBranch,
-  Mail,
-  BarChart3,
-  History,
-  ArrowDown,
-  ArrowUp,
-  Phone,
-  Container,
-  Plus,
-  MessageSquare,
-  Zap,
-  X,
-  Bell,
-  Settings,
-  Search,
-  ChevronDown,
-  Activity,
-} from "lucide-react";
-import { Layout } from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import logo from "../../../public/voxpro.ico";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import { Home, LogIn, Menu, X } from 'lucide-react';
+import logo from '../../../public/p.png';
 
-const { Header, Content } = Layout;
-
-const Bar = () => {
-  const [activeItem, setActiveItem] = useState(0);
-  const [activeSubItem, setActiveSubItem] = useState(null);
-  const [openDropdown, setOpenDropdown] = useState(null);
+const AdvancedParkingHeader = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('home');
   const navigate = useNavigate();
-  const dropdownRefs = useRef({});
-
-  const items = [
-    {
-      icon: LayoutGrid,
-      label: "Map Component",
-      route: "/mapComponent",
-      color: "green",
-    },
-
-    {
-      icon: BarChart3,
-      label: "Dashboard",
-      color: "teal",
-      subItems: [
-        {
-          icon: History,
-          label: "OwnerDashboard",
-          route: "/OwnerDashboard",
-        },
-        {
-          icon: Calendar,
-          label: "User",
-          route: "/userDashboard",
-          color: "orange",
-        },
-      ],
-    },
-  ].map((item, index) => ({
-    key: String(index + 1),
-    ...item,
-  }));
 
   useEffect(() => {
-    const currentPath = location.pathname;
-    items.forEach((item, index) => {
-      if (item.route === currentPath) setActiveItem(index);
-      if (item.subItems) {
-        item.subItems.forEach((sub, subIndex) => {
-          if (sub.route === currentPath) {
-            setActiveItem(index);
-            setActiveSubItem(`${index}-${subIndex}`);
-            setOpenDropdown(index);
-          }
-        });
-      }
-    });
-  }, [location.pathname]);
-
-  const handleItemClick = (item, index) => {
-    if (item.subItems) {
-      setOpenDropdown(openDropdown === index ? null : index);
-    } else {
-      setActiveItem(index);
-      setActiveSubItem(null);
-      setOpenDropdown(null);
-      setMobileMenuOpen(false);
-      navigate(item.route);
-    }
-  };
-
-  const handleSubItemClick = (subItem, parentIndex, subIndex) => {
-    setActiveItem(parentIndex);
-    setActiveSubItem(`${parentIndex}-${subIndex}`);
-    setOpenDropdown(null);
-    setMobileMenuOpen(false);
-    navigate(subItem.route);
-  };
-
-  const getColorClasses = (color, isActive = false) => {
-    const map = {
-      green: isActive ? "bg-green-50 text-green-700" : "hover:bg-green-100",
-      orange: isActive ? "bg-orange-50 text-orange-700" : "hover:bg-orange-100",
-      teal: isActive ? "bg-teal-50 text-teal-700" : "hover:bg-teal-100",
-      blue: isActive ? "bg-blue-50 text-blue-700" : "hover:bg-blue-100",
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setIsScrolled(scrollPosition > 50);
     };
-    return map[color] || map.blue;
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.id);
+    setMobileMenuOpen(false);
+    navigate(tab.path);
   };
+
+  const headerClasses = `
+    fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out
+    ${
+      isScrolled
+        ? 'bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg'
+        : 'bg-gradient-to-r from-slate-900/95 via-blue-900/95 to-slate-900/95 backdrop-blur-sm'
+    }
+  `;
 
   return (
-    <Layout>
-      <Header className="sticky top-0 z-50 bg-[#101111] px-4 shadow-md">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div
-            onClick={() => navigate("/mapComponent")}
-            className="cursor-pointer flex items-center gap-2"
-          >
-            <img src={logo} alt="Logo" className="w-8 h-8" />
-            <span className="text-white font-semibold hidden sm:block">
-              VoxPro
-            </span>
-          </div>
-
-          {/* Center Nav - Desktop */}
-          <nav className="hidden lg:flex items-center gap-1 mx-auto">
-            {items.map((item, index) => (
-              <div
-                key={item.key}
-                className="relative"
-                ref={(el) => (dropdownRefs.current[index] = el)}
-              >
-                <button
-                  onClick={() => handleItemClick(item, index)}
-                  className={`group flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border border-transparent text-white ${
-                    activeItem === index
-                      ? getColorClasses(item.color, true)
-                      : getColorClasses(item.color)
-                  }`}
-                >
-                  <item.icon className="h-4 w-4 mr-2" />
-                  {item.label}
-                  {item.subItems && (
-                    <ChevronDown
-                      className={`h-3 w-3 ml-2 transition-transform duration-300 ${
-                        openDropdown === index ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </button>
-                {item.subItems && openDropdown === index && (
-                  <div className="absolute left-0 top-full mt-2 w-64 bg-white text-black rounded-xl shadow-lg border border-gray-200 z-50 max-h-72 overflow-y-auto">
-                    <div className="p-2">
-                      {item.subItems.map((subItem, subIndex) => (
-                        <button
-                          key={subIndex}
-                          onClick={() =>
-                            handleSubItemClick(subItem, index, subIndex)
-                          }
-                          className={`flex items-center w-full px-3 py-2 rounded-lg text-sm ${
-                            activeSubItem === `${index}-${subIndex}`
-                              ? "bg-blue-50 text-blue-700"
-                              : "hover:bg-gray-100"
-                          }`}
-                        >
-                          <subItem.icon className="h-4 w-4 mr-2" />
-                          {subItem.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col">
+      <header className={headerClasses}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo Section */}
+            <div className="flex items-center space-x-3 group cursor-pointer">
+              <div className="relative">
+                <div className="w-15 h-15 bg-gradient-to-br from-gray-700 via-gray-900 to-pink-800 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <img src={logo} alt="Car" className="h-10 w-10 object-contain" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
               </div>
-            ))}
-          </nav>
-
-          {/* Right - Profile + Toggle */}
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center space-x-3 bg-gray-800/50 rounded-xl px-3 py-1 border border-gray-600/50">
-              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center">
-                <User className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">John Doe</p>
-                <p className="text-xs text-gray-400">Admin</p>
+              <div className="hidden sm:block">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
+                  ParkSmart
+                </h1>
+                <p className="text-xs text-blue-200/70">Smart Parking Solutions</p>
               </div>
             </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {[
+                { id: 'home', label: 'Home', icon: Home, path: '/home' },
+                { id: 'signin', label: 'Sign In', icon: LogIn, path: '/siginin' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab)}
+                  className={`
+                    relative px-6 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 
+                    group flex items-center space-x-2 overflow-hidden
+                    ${
+                      activeTab === tab.id
+                        ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/30'
+                        : 'text-blue-100 hover:text-white hover:bg-white/10'
+                    }
+                  `}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  <span>{tab.label}</span>
+                  <div
+                    className={`
+                      absolute inset-0 bg-gradient-to-r from-blue-400/0 via-cyan-400/20 to-blue-400/0 
+                      transform transition-transform duration-500 
+                      ${activeTab === tab.id ? 'translate-x-0' : '-translate-x-full group-hover:translate-x-0'}
+                    `}
+                  ></div>
+                  {activeTab === tab.id && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-white"
+              className="md:hidden p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <LayoutGrid className="h-6 w-6" />
-              )}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
-      </Header>
 
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white text-black px-4 py-4 border-t border-gray-200 shadow-md space-y-4">
-          {/* Profile Section */}
-          <div className="flex items-center space-x-3 bg-gray-100 rounded-xl px-3 py-2 border border-gray-200">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-800">John Doe</p>
-              <p className="text-xs text-gray-500">Admin</p>
+        {/* Mobile Menu */}
+        <div
+          className={`
+            md:hidden transition-all duration-500 ease-in-out overflow-hidden
+            ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
+          `}
+        >
+          <div className="bg-white/5 backdrop-blur-xl border-t border-white/10">
+            <div className="px-4 py-6 space-y-3">
+              {[
+                { id: 'home', label: 'Home', icon: Home, path: '/' },
+                { id: 'signin', label: 'Sign In', icon: LogIn, path: '/signin' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab)}
+                  className={`
+                    w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-300
+                    ${
+                      activeTab === tab.id
+                        ? 'bg-white/20 text-white shadow-lg border border-white/30'
+                        : 'text-blue-100 hover:text-white hover:bg-white/10'
+                    }
+                  `}
+                >
+                  <tab.icon className="h-5 w-5" />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* Navigation Items */}
-          {items.map((item, index) => (
-            <div key={item.key}>
-              <button
-                onClick={() => handleItemClick(item, index)}
-                className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-base hover:bg-gray-100"
-              >
-                <span className="flex items-center">
-                  <item.icon className="h-5 w-5 mr-2" />
-                  {item.label}
-                </span>
-                {item.subItems && (
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      openDropdown === index ? "rotate-180" : ""
-                    }`}
-                  />
-                )}
-              </button>
-              {item.subItems && openDropdown === index && (
-                <div className="pl-6 space-y-1 mt-1">
-                  {item.subItems.map((subItem, subIndex) => (
-                    <button
-                      key={subIndex}
-                      onClick={() =>
-                        handleSubItemClick(subItem, index, subIndex)
-                      }
-                      className={`flex items-center w-full px-2 py-1 rounded-lg text-sm ${
-                        activeSubItem === `${index}-${subIndex}`
-                          ? "bg-blue-50 text-blue-700"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      <subItem.icon className="h-4 w-4 mr-2" />
-                      {subItem.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
         </div>
-      )}
-      <Content className="h-[calc(100vh-64px)] bg-gray-50 overflow-y-auto ">
-        <Outlet />
-      </Content>
-    </Layout>
+      </header>
+      <main className="flex-1 mt-16 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className=" mx-auto px-2 sm:px-5 lg:px-5 py-2">
+          <Outlet />
+        </div>
+      </main>
+    </div>
   );
 };
 
-export default Bar;
+export default AdvancedParkingHeader;
