@@ -40,7 +40,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 const { RangePicker } = TimePicker;
 
-export default function OwnerDashboard() {
+export default function OwnerBookings() {
   const [places, setPlaces] = useState([
     {
       id: 1,
