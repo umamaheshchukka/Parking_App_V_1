@@ -1,6 +1,101 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: #000;
+
+  background-color: #fff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  margin: 0;
+  font-family: "Roboto", sans-serif;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #f8f9fa inset;
+  box-shadow: 0 0 0 30px #f8f9fa inset;
+  -webkit-text-fill-color: black;
+}
+
+input:-moz-autofill {
+  background-color: transparent;
+  color: black;
+  box-shadow: 0 0 0 30px #f8f9fa inset;
+}
+.css-uywun8-MuiPaper-root-MuiPopover-paper {
+  background-color: #3a3838 !important;
+}
+.ant-form-item-explain {
+  margin-top: 3px !important;
+  padding-left: 4px !important;
+  font-size: 12px !important;
+  color: green !important;
+  font-weight: 500 !important;
+}
+.scrollbar-thin-white::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin-white::-webkit-scrollbar-thumb {
+  background-color: white;
+  border-radius: 9999px;
+}
+
+.scrollbar-thin-white::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.thin-chat-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.thin-chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 5px;
+}
+
+.thin-chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ced4da;
+}
+/* Custom overrides for Ant Design menu */
+/* styles.css or global CSS */
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #cbcbd3 !important; /* Tailwind's bg-indigo-900 */
+  color: #00022d !important;
+}
+
+.ant-menu-dark .ant-menu-item-active {
+  background-color: #48456e !important; /* Tailwind's bg-indigo-800 */
+  color: #ffffff !important;
 }
