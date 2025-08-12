@@ -1,180 +1,180 @@
 import React, { useState } from "react";
 import {
-  Search,
-  MapPin,
-  Filter,
-  ChevronDown,
-  Calendar,
-  Clock,
-} from "lucide-react";
+  Form,
+  Input,
+  Button,
+  DatePicker,
+  TimePicker,
+  Select,
+  Slider,
+  Checkbox,
+  Collapse,
+} from "antd";
+import {
+  SearchOutlined,
+  EnvironmentOutlined,
+  FilterOutlined,
+} from "@ant-design/icons";
+
+const { Option } = Select;
+const { Panel } = Collapse;
 
 export function SearchFilters({ onSearch, searchLocation, setSearchLocation }) {
-  const [filters, setFilters] = useState({
-    date: "",
-    startTime: "",
-    endTime: "",
+  const [form] = Form.useForm();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  const initialValues = {
+    date: null,
+    startTime: null,
+    endTime: null,
     maxPrice: 20,
     type: "all",
     showAvailableOnly: true,
     sortBy: "distance",
-  });
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
-  const updateFilter = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onSearch(newFilters);
   };
 
-  const handleLocationSearch = () => {
-    onSearch(filters);
+  const handleSearch = (values) => {
+    onSearch({
+      ...values,
+      date: values.date ? values.date.format("YYYY-MM-DD") : "",
+      startTime: values.startTime ? values.startTime.format("HH:mm") : "",
+      endTime: values.endTime ? values.endTime.format("HH:mm") : "",
+    });
   };
 
   return (
     <div className="border-b bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
-        {/* Main Search */}
-        <div className="flex gap-3 mb-4">
-          <div className="flex-1 relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Where do you need to park?"
-              value={searchLocation}
-              onChange={(e) => setSearchLocation(e.target.value)}
-              className="pl-10 w-full rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm py-2"
-            />
-          </div>
-          <button
-            onClick={handleLocationSearch}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-          >
-            <Search className="h-4 w-4" />
-            Search
-          </button>
-        </div>
-
-        {/* Quick Filters */}
-        <div className="flex flex-wrap gap-3 mb-4">
-          {/* Date */}
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <input
-              type="date"
-              value={filters.date}
-              onChange={(e) => updateFilter("date", e.target.value)}
-              className="border border-gray-300 rounded-md text-sm px-2 py-1 focus:ring-2 focus:ring-blue-500"
-            />
+        <Form
+          form={form}
+          initialValues={initialValues}
+          onFinish={handleSearch}
+          layout="vertical"
+        >
+          {/* Main Search */}
+          <div className="flex gap-3 mb-4">
+            <Form.Item className="flex-1 mb-0">
+              <Input
+                prefix={<EnvironmentOutlined className="text-gray-500" />}
+                placeholder="Where do you need to park?"
+                value={searchLocation}
+                onChange={(e) => setSearchLocation(e.target.value)}
+                className="rounded-md text-sm"
+              />
+            </Form.Item>
+            <Form.Item className="mb-0">
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SearchOutlined />}
+                className="flex items-center gap-2"
+              >
+                Search
+              </Button>
+            </Form.Item>
           </div>
 
-          {/* Time */}
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <input
-              type="time"
-              value={filters.startTime}
-              onChange={(e) => updateFilter("startTime", e.target.value)}
-              className="border border-gray-300 rounded-md text-sm px-2 py-1 focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-gray-500 text-sm">to</span>
-            <input
-              type="time"
-              value={filters.endTime}
-              onChange={(e) => updateFilter("endTime", e.target.value)}
-              className="border border-gray-300 rounded-md text-sm px-2 py-1 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          {/* Quick Filters */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            <Form.Item name="date" className="mb-0">
+              <DatePicker
+                className="text-sm"
+                placeholder="Select date"
+                suffixIcon={
+                  <i className="anticon">
+                    <svg viewBox="0 0 1024 1024" width="16" height="16">
+                      <path d="M896 128H768v64h128v640H128V192h128v-64H128c-35.3 0-64 28.7-64 64v640c0 35.3 28.7 64 64 64h768c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64zM512 896c-141.4 0-256-114.6-256-256s114.6-256 256-256 256 114.6 256 256-114.6 256-256 256zm0-448c-106 0-192 86-192 192s86 192 192 192 192-86 192-192-86-192-192-192z" />
+                    </svg>
+                  </i>
+                }
+              />
+            </Form.Item>
 
-          {/* Type */}
-          <select
-            value={filters.type}
-            onChange={(e) => updateFilter("type", e.target.value)}
-            className="border border-gray-300 rounded-md text-sm px-3 py-1 focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Types</option>
-            <option value="garage">Garage</option>
-            <option value="street">Street</option>
-            <option value="lot">Parking Lot</option>
-          </select>
-
-          {/* More Filters Toggle */}
-          <button
-            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-1 text-sm hover:bg-gray-100"
-          >
-            <Filter className="h-4 w-4" />
-            More Filters
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                isFiltersOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-        </div>
-
-        {/* Advanced Filters */}
-        {isFiltersOpen && (
-          <div className="bg-gray-50 border rounded-md p-4 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Price Range */}
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Max Price per Hour: ${filters.maxPrice}
-                </label>
-                <input
-                  type="range"
-                  value={filters.maxPrice}
-                  onChange={(e) =>
-                    updateFilter("maxPrice", Number(e.target.value))
-                  }
-                  min="1"
-                  max="30"
-                  step="1"
-                  className="w-full accent-blue-600"
+            <div className="flex items-center gap-2">
+              <Form.Item name="startTime" className="mb-0">
+                <TimePicker
+                  className="text-sm"
+                  placeholder="Start time"
+                  format="HH:mm"
                 />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>$1</span>
-                  <span>$30</span>
+              </Form.Item>
+              <span className="text-gray-500 text-sm">to</span>
+              <Form.Item name="endTime" className="mb-0">
+                <TimePicker
+                  className="text-sm"
+                  placeholder="End time"
+                  format="HH:mm"
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item name="type" className="mb-0">
+              <Select className="w-32 text-sm">
+                <Option value="all">All Types</Option>
+                <Option value="garage">Garage</Option>
+                <Option value="street">Street</Option>
+                <Option value="lot">Parking Lot</Option>
+              </Select>
+            </Form.Item>
+
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              className="flex items-center gap-2 text-sm"
+            >
+              More Filters
+            </Button>
+          </div>
+
+          {/* Advanced Filters */}
+          <Collapse
+            activeKey={isFiltersOpen ? ["1"] : []}
+            onChange={() => setIsFiltersOpen(!isFiltersOpen)}
+            bordered={false}
+          >
+            <Panel header={null} key="1" showArrow={false}>
+              <div className="bg-gray-50 border rounded-md p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Form.Item
+                    name="maxPrice"
+                    label={`Max Price per Hour: $${
+                      form.getFieldValue("maxPrice") || initialValues.maxPrice
+                    }`}
+                  >
+                    <Slider
+                      min={1}
+                      max={30}
+                      step={1}
+                      onChange={(value) =>
+                        form.setFieldsValue({ maxPrice: value })
+                      }
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>$1</span>
+                      <span>$30</span>
+                    </div>
+                  </Form.Item>
+
+                  <Form.Item name="sortBy" label="Sort by">
+                    <Select className="text-sm">
+                      <Option value="distance">Distance</Option>
+                      <Option value="price">Price</Option>
+                      <Option value="rating">Rating</Option>
+                      <Option value="availability">Availability</Option>
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item name="showAvailableOnly" valuePropName="checked">
+                    <Checkbox>Available Only</Checkbox>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Show only spots with current availability
+                    </p>
+                  </Form.Item>
                 </div>
               </div>
-
-              {/* Sort Options */}
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Sort by
-                </label>
-                <select
-                  value={filters.sortBy}
-                  onChange={(e) => updateFilter("sortBy", e.target.value)}
-                  className="border border-gray-300 rounded-md text-sm px-3 py-2 w-full focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="distance">Distance</option>
-                  <option value="price">Price</option>
-                  <option value="rating">Rating</option>
-                  <option value="availability">Availability</option>
-                </select>
-              </div>
-
-              {/* Availability Toggle */}
-              <div>
-                <label className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">Available Only</span>
-                  <input
-                    type="checkbox"
-                    checked={filters.showAvailableOnly}
-                    onChange={(e) =>
-                      updateFilter("showAvailableOnly", e.target.checked)
-                    }
-                    className="w-5 h-5 accent-blue-600"
-                  />
-                </label>
-                <p className="text-xs text-gray-500">
-                  Show only spots with current availability
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+            </Panel>
+          </Collapse>
+        </Form>
       </div>
     </div>
   );
