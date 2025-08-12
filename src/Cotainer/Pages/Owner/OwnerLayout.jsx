@@ -66,7 +66,7 @@ const items = [
     color: "orange",
   },
 ];
-const UserSidebar = () => {
+const OwnerSidebar = () => {
   const [activeKey, setActiveKey] = useState(""); // State in Chinese for consistency
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -201,4 +201,4 @@ const UserSidebar = () => {
   );
 };
 
-export default UserSidebar;
+export default OwnerSidebar;

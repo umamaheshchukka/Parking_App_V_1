@@ -1,0 +1,366 @@
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  Modal,
+  Table,
+  Card,
+  Avatar,
+  Badge,
+  Tabs,
+  Space,
+  Typography,
+  Row,
+  Col,
+  Statistic,
+} from "antd";
+import {
+  CarOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+const { TabPane } = Tabs;
+const { Option } = Select;
+
+const VehicleDashboard = () => {
+  const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState(null);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [vehicles, setVehicles] = useState([
+    {
+      id: 1,
+      type: "4",
+      brand: "Toyota",
+      model: "Camry",
+      plateNumber: "ABC-1234",
+      color: "Blue",
+      isDefault: true,
+      addedDate: "2024-01-15",
+    },
+    {
+      id: 2,
+      type: "2",
+      brand: "Honda",
+      model: "CBR",
+      plateNumber: "XYZ-5678",
+      color: "Red",
+      isDefault: false,
+      addedDate: "2024-02-10",
+    },
+  ]);
+
+  const vehicleTypeOptions = [
+    {
+      value: "2",
+      label: "2 Wheeler (Bike/Scooter)",
+      icon: <CarOutlined />, // Replaced MotorcycleOutlined with CarOutlined
+    },
+    { value: "4", label: "4 Wheeler (Car/SUV)", icon: <CarOutlined /> },
+    { value: "6", label: "6+ Wheeler (Truck/Bus)", icon: <CarOutlined /> },
+  ];
+
+  // Function to render vehicle icons based on type
+  const getVehicleIcon = (type) => {
+    switch (type) {
+      case "2":
+        return <CarOutlined className="text-2xl text-blue-500" />; // Replaced MotorcycleOutlined
+      case "4":
+        return <CarOutlined className="text-2xl text-green-500" />;
+      case "6":
+        return <CarOutlined className="text-2xl text-orange-500" />;
+      default:
+        return <CarOutlined className="text-2xl text-gray-500" />;
+    }
+  };
+
+  // Show modal for adding/editing vehicles
+  const showModal = (vehicle = null) => {
+    setEditingVehicle(vehicle);
+    setIsModalVisible(true);
+    if (vehicle) {
+      form.setFieldsValue(vehicle);
+    } else {
+      form.resetFields();
+    }
+  };
+
+  // Handle modal cancel
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setEditingVehicle(null);
+    form.resetFields();
+  };
+
+  // Handle form submission for adding/editing vehicles
+  const handleSubmit = (values) => {
+    if (editingVehicle) {
+      setVehicles((prev) =>
+        prev.map((v) => (v.id === editingVehicle.id ? { ...v, ...values } : v))
+      );
+    } else {
+      const newVehicle = {
+        ...values,
+        id: Date.now(),
+        addedDate: new Date().toISOString().split("T")[0],
+        isDefault: vehicles.length === 0,
+      };
+      setVehicles((prev) => [...prev, newVehicle]);
+    }
+    setIsModalVisible(false);
+    form.resetFields();
+    setEditingVehicle(null);
+  };
+
+  const deleteVehicle = (id) => {
+    setVehicles((prev) => prev.filter((v) => v.id !== id));
+  };
+  const setDefaultVehicle = (id) => {
+    setVehicles((prev) =>
+      prev.map((v) => ({
+        ...v,
+        isDefault: v.id === id,
+      }))
+    );
+  };
+
+  const vehicleColumns = [
+    {
+      title: "Vehicle",
+      key: "vehicle",
+      render: (_, record) => (
+        <div className="flex items-center space-x-3">
+          {getVehicleIcon(record.type)}
+          <div>
+            <div className="font-semibold">
+              {record.brand} {record.model}
+            </div>
+            <div className="text-sm text-gray-500">{record.plateNumber}</div>
+          </div>
+          {record.isDefault && <Badge count="Default" className="ml-2" />}
+        </div>
+      ),
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      render: (type) => (
+        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+          {type} Wheeler
+        </span>
+      ),
+    },
+    {
+      title: "Color",
+      dataIndex: "color",
+      render: (color) => (
+        <div className="flex items-center space-x-2">
+          <div
+            className="w-4 h-4 rounded-full border"
+            style={{ backgroundColor: color.toLowerCase() }}
+          />
+          <span>{color}</span>
+        </div>
+      ),
+    },
+    {
+      title: "Added Date",
+      dataIndex: "addedDate",
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => showModal(record)}
+            className="text-blue-600 hover:text-blue-800"
+          />
+          <Button
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={() => deleteVehicle(record.id)}
+            className="text-red-600 hover:text-red-800"
+          />
+          {!record.isDefault && (
+            <Button
+              size="small"
+              onClick={() => setDefaultVehicle(record.id)}
+              className="text-green-600 hover:text-green-800"
+            >
+              Set Default
+            </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <Title level={3}>My Vehicles</Title>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => showModal()}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Add New Vehicle
+            </Button>
+          </div>
+
+          <Card className="shadow-sm">
+            <Table
+              columns={vehicleColumns}
+              dataSource={vehicles}
+              rowKey="id"
+              pagination={{ pageSize: 5 }}
+              className="overflow-x-auto"
+            />
+          </Card>
+        </div>
+      </div>
+
+      {/* Add/Edit Vehicle Modal */}
+      <Modal
+        title={editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        width={600}
+        className="top-8"
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          className="mt-6"
+        >
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="type"
+                label="Vehicle Type"
+                rules={[
+                  { required: true, message: "Please select vehicle type" },
+                ]}
+              >
+                <Select placeholder="Select vehicle type" size="large">
+                  {vehicleTypeOptions.map((option) => (
+                    <Option key={option.value} value={option.value}>
+                      <div className="flex items-center space-x-2">
+                        {option.icon}
+                        <span>{option.label}</span>
+                      </div>
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="brand"
+                label="Brand"
+                rules={[{ required: true, message: "Please enter brand" }]}
+              >
+                <Input placeholder="e.g., Toyota, Honda" size="large" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="model"
+                label="Model"
+                rules={[{ required: true, message: "Please enter model" }]}
+              >
+                <Input placeholder="e.g., Camry, Civic" size="large" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="plateNumber"
+                label="License Plate Number"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter license plate number",
+                  },
+                  { pattern: /^[A-Z0-9-]+$/, message: "Invalid format" },
+                ]}
+              >
+                <Input
+                  placeholder="ABC-1234"
+                  size="large"
+                  style={{ textTransform: "uppercase" }}
+                  onChange={(e) =>
+                    form.setFieldsValue({
+                      plateNumber: e.target.value.toUpperCase(),
+                    })
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="color"
+                label="Color"
+                rules={[{ required: true, message: "Please select color" }]}
+              >
+                <Select placeholder="Select color" size="large">
+                  {[
+                    "White",
+                    "Black",
+                    "Gray",
+                    "Silver",
+                    "Blue",
+                    "Red",
+                    "Green",
+                    "Yellow",
+                    "Brown",
+                    "Orange",
+                  ].map((color) => (
+                    <Option key={color} value={color}>
+                      {color}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <Button onClick={handleCancel} size="large">
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {editingVehicle ? "Update Vehicle" : "Add Vehicle"}
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default VehicleDashboard;
