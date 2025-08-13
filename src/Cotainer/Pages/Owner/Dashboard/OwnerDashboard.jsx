@@ -40,7 +40,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 const { RangePicker } = TimePicker;
 
-export default function OwnerPlacess() {
+export default function OwnerDashboard() {
   const [places, setPlaces] = useState([
     {
       id: 1,
@@ -305,36 +305,121 @@ export default function OwnerPlacess() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Parking Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Manage your parking spaces and track earnings
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card
-          title="Manage Parking Places"
-          className="shadow-lg"
-          extra={
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => showModal()}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Add New Place
-            </Button>
-          }
-        >
-          <Table
-            columns={columns}
-            dataSource={places}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} places`,
-            }}
-            className="overflow-x-auto"
-          />
-        </Card>
+        <div className="space-y-6">
+          {/* Stats Cards */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} lg={6}>
+              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">
+                <Statistic
+                  title={<span className="text-blue-100">Total Earnings</span>}
+                  value={totalEarnings}
+                  prefix="$"
+                  valueStyle={{ color: "white", fontSize: "24px" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
+                <Statistic
+                  title={<span className="text-green-100">Total Bookings</span>}
+                  value={totalBookings}
+                  valueStyle={{ color: "white", fontSize: "24px" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0">
+                <Statistic
+                  title={<span className="text-purple-100">Total Spots</span>}
+                  value={totalSpots}
+                  valueStyle={{ color: "white", fontSize: "24px" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white border-0">
+                <Statistic
+                  title={
+                    <span className="text-orange-100">Occupancy Rate</span>
+                  }
+                  value={((occupiedSpots / totalSpots) * 100).toFixed(1)}
+                  suffix="%"
+                  valueStyle={{ color: "white", fontSize: "24px" }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Recent Places */}
+          <Card
+            title="Recent Parking Places"
+            className="shadow-lg"
+            extra={
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => showModal()}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Add New Place
+              </Button>
+            }
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {places.slice(0, 3).map((place) => (
+                <Card
+                  key={place.id}
+                  className="hover:shadow-md transition-shadow"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-semibold text-gray-900">
+                        {place.name}
+                      </h3>
+                      <Tag color={getStatusColor(place.status)}>
+                        {place.status}
+                      </Tag>
+                    </div>
+                    <p className="text-sm text-gray-600">{place.address}</p>
+                    <div className="flex justify-between text-sm">
+                      <span>Capacity: {place.capacity}</span>
+                      <span className="text-green-600 font-medium">
+                        ${place.pricePerHour}/hr
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <StarOutlined className="text-yellow-400 mr-1" />
+                        <span>{place.rating}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {place.totalBookings} bookings
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Add/Edit Modal */}

@@ -16,6 +16,7 @@ import {
   ChevronDown,
   User,
 } from "lucide-react";
+import { LayoutDashboard, MapPin, CalendarCheck } from "lucide-react";
 import { Button, Menu } from "antd";
 const { Sider, Content } = Layout;
 const siderStyle = {
@@ -25,7 +26,6 @@ const siderStyle = {
   borderRadius: "0 20px 20px 0",
   overflow: "hidden",
 };
-
 const menuStyle = {
   background: "transparent",
   border: "none",
@@ -34,35 +34,27 @@ const menuStyle = {
 };
 const items = [
   {
+    key: "2",
+    icon: <LayoutDashboard />,
+    label: "OwnerDashboard",
+    route: "/OwnerDashboard",
+    description: "OwnerDashboard",
+    color: "orange",
+  },
+  {
     key: "1",
-    icon: <LayoutGrid />,
-    label: "mapComponent",
-    route: "/mapComponent",
-    description: "mapComponent",
+    icon: <MapPin />,
+    label: "OwnerPlacess",
+    route: "/OwnerPlacess",
+    description: "OwnerPlacess",
     color: "blue",
   },
   {
-    key: "2",
-    icon: <BarChart3 />,
-    label: "userDashboard",
-    route: "/userDashboard",
-    description: "userDashboard",
-    color: "orange",
-  },
-  {
     key: "3",
-    icon: <ArrowUp />,
+    icon: <CalendarCheck />,
     label: "Bookings",
     route: "/UserBookings",
     description: "UserBookings",
-    color: "orange",
-  },
-  {
-    key: "4",
-    icon: <ChevronDown />,
-    label: "VehicleDashboard",
-    route: "/VehicleDashboard",
-    description: "VehicleDashboard",
     color: "orange",
   },
 ];
@@ -138,10 +130,10 @@ const OwnerSidebar = () => {
         collapsible
         collapsed={isCollapsed}
         onCollapse={(collapsed) => setIsCollapsed(collapsed)}
-        className="bg-gradient-to-b from-gray-900 to-gray-800 text-white"
+        className="bg-gradient-to-b from-red-900 to-gray-800 text-white"
         theme="dark"
         style={{
-          ...siderStyle,
+          // ...siderStyle,
           position: "fixed",
           left: 0,
           top: 0,
@@ -184,7 +176,6 @@ const OwnerSidebar = () => {
           style={menuStyle}
           onClick={(info) => {
             const route = info.item.props.route;
-            console.log("Route:", route);
             if (route) navigate(route);
           }}
         />
