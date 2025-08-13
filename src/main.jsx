@@ -15,11 +15,16 @@ import "./index.css";
 import UserBookings from "./Cotainer/Pages/User/Bookings/Bookings";
 import UserDashboard from "./Cotainer/Pages/User/Dashboard/UserDashboard";
 import VehicleDashboard from "./Cotainer/Pages/User/Vehicles/Vehicles";
+import OwnerPlacess from "./Cotainer/Pages/Owner/Owner";
 const mainRoutes = [
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "OwnerPlacess",
+        element: <OwnerPlacess />,
+      },
       {
         path: "home",
         element: <HomeContent />,
