@@ -290,7 +290,7 @@ const OwnerSidebar = () => {
           style={{
             height: "100vh",
             overflowY: "auto",
-            paddingTop: 64, // push content below header
+            paddingTop: 64,
           }}
         >
           <Outlet />
