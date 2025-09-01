@@ -1,15 +1,15 @@
-import React from 'react';
-import { Form, Input, Button, Radio, Checkbox, Typography, Space } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
-import { startRegUser } from '../../../Actions/Auth/Auth';
+import React from "react";
+import { Form, Input, Button, Radio, Checkbox, Typography, Space } from "antd";
+import { CheckCircleOutlined } from "@ant-design/icons";
+import { startRegUser } from "../../../Actions/Auth/Auth";
 import { useDispatch } from "react-redux";
-import { ImageCarousel } from './ImageShow';
+import { ImageCarousel } from "./ImageShow";
 
 const { Title, Paragraph } = Typography;
 const url = import.meta.env.VITE_PARKING_URL;
 
 const RegisterComponent = () => {
-  console.log(url, 'url');
+  console.log(url, "url");
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
@@ -31,7 +31,10 @@ const RegisterComponent = () => {
         <div className="flex items-center justify-center">
           <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-2 sm:p-6 transform transition-all duration-300 hover:scale-[1.01]">
             <div className="flex justify-center mb-4">
-              <Title level={2} className="!text-xl sm:!text-2xl !font-bold !text-transparent !bg-clip-text !bg-gradient-to-r !from-red-500 !to-yellow-500">
+              <Title
+                level={2}
+                className="!text-xl sm:!text-2xl !font-bold !text-transparent !bg-clip-text !bg-gradient-to-r !from-red-500 !to-yellow-500"
+              >
                 🚙 Create an Account
               </Title>
             </div>
@@ -44,7 +47,9 @@ const RegisterComponent = () => {
               className="space-y-3"
             >
               <Form.Item
-                label={<span className="text-gray-700 font-medium">📧 Email</span>}
+                label={
+                  <span className="text-gray-700 font-medium">📧 Email</span>
+                }
                 name="email"
                 rules={[
                   { required: true, message: "Email is required" },
@@ -58,7 +63,9 @@ const RegisterComponent = () => {
               </Form.Item>
 
               <Form.Item
-                label={<span className="text-gray-700 font-medium">👤 Username</span>}
+                label={
+                  <span className="text-gray-700 font-medium">👤 Username</span>
+                }
                 name="name"
                 rules={[{ required: true, message: "Username is required" }]}
               >
@@ -69,7 +76,9 @@ const RegisterComponent = () => {
               </Form.Item>
 
               <Form.Item
-                label={<span className="text-gray-700 font-medium">🔒 Password</span>}
+                label={
+                  <span className="text-gray-700 font-medium">🔒 Password</span>
+                }
                 name="password"
                 rules={[{ required: true, message: "Password is required" }]}
               >
@@ -80,9 +89,13 @@ const RegisterComponent = () => {
               </Form.Item>
 
               <Form.Item
-                label={<span className="text-gray-700 font-medium">📱 Phone</span>}
+                label={
+                  <span className="text-gray-700 font-medium">📱 Phone</span>
+                }
                 name="phone"
-                rules={[{ required: true, message: "Phone number is required" }]}
+                rules={[
+                  { required: true, message: "Phone number is required" },
+                ]}
               >
                 <Input
                   maxLength={10}
@@ -92,13 +105,23 @@ const RegisterComponent = () => {
               </Form.Item>
 
               <Form.Item
-                label={<span className="text-gray-700 font-medium">🧾 Account Type</span>}
+                label={
+                  <span className="text-gray-700 font-medium">
+                    🧾 Account Type
+                  </span>
+                }
                 name="role"
-                rules={[{ required: true, message: "Please select an account type" }]}
+                rules={[
+                  { required: true, message: "Please select an account type" },
+                ]}
               >
                 <Radio.Group className="flex flex-col sm:flex-row gap-4">
-                  <Radio value="customer" className="text-gray-700">🅿️ Looking for Parking</Radio>
-                  <Radio value="owner" className="text-gray-700">🏠 Have Parking Space</Radio>
+                  <Radio value="customer" className="text-gray-700">
+                    🅿️ Looking for Parking
+                  </Radio>
+                  <Radio value="owner" className="text-gray-700">
+                    🏠 Have Parking Space
+                  </Radio>
                 </Radio.Group>
               </Form.Item>
 
@@ -108,12 +131,14 @@ const RegisterComponent = () => {
                 rules={[
                   {
                     validator: (_, value) =>
-                      value ? Promise.resolve() : Promise.reject("You must agree to the terms"),
+                      value
+                        ? Promise.resolve()
+                        : Promise.reject("You must agree to the terms"),
                   },
                 ]}
               >
                 <Checkbox className="text-gray-700">
-                  ✅ I agree to the{' '}
+                  ✅ I agree to the{" "}
                   <a href="#" className="text-blue-500 hover:underline">
                     Terms & Privacy
                   </a>
@@ -132,7 +157,7 @@ const RegisterComponent = () => {
               </Form.Item>
 
               <Paragraph className="text-center text-gray-600 text-sm">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <a href="/siginin" className="text-blue-500 hover:underline">
                   Login
                 </a>

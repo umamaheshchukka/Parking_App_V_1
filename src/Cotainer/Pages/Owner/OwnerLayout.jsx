@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, Menu, Badge, Popover, List, Avatar, Button } from "antd";
 import {
   LayoutGrid,
   Calendar,
@@ -17,8 +17,7 @@ import {
   User,
 } from "lucide-react";
 import { LayoutDashboard, MapPin, CalendarCheck } from "lucide-react";
-import { Button, Menu } from "antd";
-const { Sider, Content } = Layout;
+const { Sider, Content, Header } = Layout;
 const siderStyle = {
   background:
     "linear-gradient(135deg,rgb(31, 41, 83) 0%,rgb(80, 37, 123) 100%)",
@@ -59,7 +58,7 @@ const items = [
   },
 ];
 const OwnerSidebar = () => {
-  const [activeKey, setActiveKey] = useState(""); // State in Chinese for consistency
+  const [activeKey, setActiveKey] = useState("");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
@@ -102,29 +101,131 @@ const OwnerSidebar = () => {
       navigate(item.route);
     }
   };
-
-  const handleSubItemClick = (subItem, index) => {
-    setOpenDropdown(null);
-    navigate(subItem.route);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      message: "New booking request for Parking Spot A by Jane Doe",
+      place: "Parking Spot A",
+      user: "Jane Doe",
+      time: "2025-09-01 14:30",
+      status: "pending",
+    },
+    {
+      id: 2,
+      message: "Booking request for Parking Spot B by John Smith",
+      place: "Parking Spot B",
+      user: "John Smith",
+      time: "2025-09-01 13:15",
+      status: "pending",
+    },
+  ]);
+  const handleNotificationAction = (notificationId, action) => {
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif.id === notificationId ? { ...notif, status: action } : notif
+      )
+    );
   };
-
-  const getColorClasses = (color, isActive = false) => {
-    const colors = {
-      blue: isActive
-        ? "bg-blue-100 text-blue-700"
-        : "hover:bg-blue-50 hover:text-blue-700",
-      orange: isActive
-        ? "bg-orange-100 text-orange-700"
-        : "hover:bg-orange-50 hover:text-orange-700",
-      teal: isActive
-        ? "bg-teal-100 text-teal-700"
-        : "hover:bg-teal-50 hover:text-teal-700",
-    };
-    return colors[color] || colors.blue;
-  };
-
+  const notificationContent = (
+    <div className="w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-xl p-4">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Notifications
+      </h3>
+      {notifications.length === 0 ? (
+        <p className="text-gray-500 text-sm">No new notifications</p>
+      ) : (
+        <List
+          dataSource={notifications}
+          renderItem={(item) => (
+            <List.Item
+              className="flex flex-col items-start p-3 border-b border-gray-200 hover:bg-gray-50"
+              key={item.id}
+            >
+              <div className="flex items-center w-full">
+                <Avatar
+                  className="bg-blue-500"
+                  icon={<User className="w-4 h-4 text-white" />}
+                />
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-800">
+                    {item.message}
+                  </p>
+                  <p className="text-xs text-gray-500">{item.time}</p>
+                </div>
+              </div>
+              {item.status === "pending" && (
+                <div className="flex space-x-2 mt-2">
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="bg-green-500 hover:bg-green-600"
+                    onClick={() =>
+                      handleNotificationAction(item.id, "accepted")
+                    }
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    type="default"
+                    size="small"
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                    onClick={() =>
+                      handleNotificationAction(item.id, "rejected")
+                    }
+                  >
+                    Reject
+                  </Button>
+                </div>
+              )}
+              {item.status !== "pending" && (
+                <p
+                  className={`text-xs mt-2 ${
+                    item.status === "accepted"
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </p>
+              )}
+            </List.Item>
+          )}
+        />
+      )}
+    </div>
+  );
   return (
     <Layout className="h-screen">
+      <Header
+        className="fixed top-0 left-0 right-0 z-10 flex justify-between items-center px-6 bg-transparent"
+        style={{
+          marginLeft: isCollapsed ? 80 : 256,
+          height: 64,
+          lineHeight: "64px",
+        }}
+      >
+        <div className="text-xl font-bold text-gray-800"></div>
+
+        <div className="flex items-center space-x-4">
+          <Popover
+            content={notificationContent}
+            trigger="click"
+            placement="bottomRight"
+            overlayClassName="notification-popover"
+          >
+            <div className="relative cursor-pointer">
+              <Badge
+                count={
+                  notifications.filter((n) => n.status === "pending").length
+                }
+                className="text-gray-600"
+              >
+                <Bell className="w-6 h-6 hover:text-blue-500 transition-colors" />
+              </Badge>
+            </div>
+          </Popover>
+        </div>
+      </Header>
       <Sider
         width={256}
         collapsible
@@ -156,7 +257,10 @@ const OwnerSidebar = () => {
 
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+            <div
+              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center"
+              onClick={() => navigate("/accountSettings")}
+            >
               <User className="w-6 h-6 text-white" />
             </div>
             {!isCollapsed && (
@@ -183,7 +287,11 @@ const OwnerSidebar = () => {
       <Layout style={{ marginLeft: `${isCollapsed ? 80 : 256}px` }}>
         <Content
           className="p-2 bg-gray-100 thin-chat-scrollbar"
-          style={{ height: "100vh", overflowY: "auto" }}
+          style={{
+            height: "100vh",
+            overflowY: "auto",
+            paddingTop: 64, // push content below header
+          }}
         >
           <Outlet />
         </Content>
