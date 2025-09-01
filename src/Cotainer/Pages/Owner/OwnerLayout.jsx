@@ -53,8 +53,8 @@ const items = [
     key: "3",
     icon: <CalendarCheck />,
     label: "Bookings",
-    route: "/UserBookings",
-    description: "UserBookings",
+    route: "/ownerBookings",
+    description: "OwnerBookings",
     color: "orange",
   },
 ];

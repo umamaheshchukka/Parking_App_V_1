@@ -15,6 +15,7 @@ import UserBookings from "./Cotainer/Pages/User/Bookings/Bookings";
 import UserDashboard from "./Cotainer/Pages/User/Dashboard/UserDashboard";
 import VehicleDashboard from "./Cotainer/Pages/User/Vehicles/Vehicles";
 import OwnerPlacess from "./Cotainer/Pages/Owner/OwnerParkingAreas/Placess";
+import OwnerBookings from "./Cotainer/Pages/Owner/Bookings/OwnerBookings.jsx";
 const mainRoutes = [
   {
     path: "/",
@@ -39,6 +40,10 @@ const mainRoutes = [
       {
         path: "OwnerDashboard",
         element: <OwnerDashboard />,
+      },
+      {
+        path: "ownerBookings",
+        element: <OwnerBookings />,
       },
       {
         path: "userDashboard",
