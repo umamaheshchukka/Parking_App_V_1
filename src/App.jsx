@@ -9,7 +9,7 @@ function App() {
   const token = localStorage.getItem("token");
 
   return (
-    <ConfigProvider>{!token ? <ParkingSidebar /> : <Bar />}</ConfigProvider>
+    <ConfigProvider>{token ? <ParkingSidebar /> : <Bar />}</ConfigProvider>
   );
 }
 

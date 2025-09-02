@@ -129,12 +129,12 @@ const AdvancedParkingHeader = () => {
           <div className="bg-white/5 backdrop-blur-xl border-t border-white/10">
             <div className="px-4 py-6 space-y-3">
               {[
-                { id: "home", label: "Home", icon: Home, path: "/" },
+                { id: "home", label: "Home", icon: Home, path: "/home" },
                 {
                   id: "signin",
                   label: "Sign In",
                   icon: LogIn,
-                  path: "/signin",
+                  path: "/siginin",
                 },
               ].map((tab) => (
                 <button
