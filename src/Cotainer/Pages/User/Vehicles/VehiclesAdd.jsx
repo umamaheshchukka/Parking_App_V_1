@@ -64,8 +64,6 @@ const VehiclesAdd = ({ handleCancel }) => {
     { value: "4", label: "4 Wheeler (Car/SUV)", icon: <CarOutlined /> },
     { value: "6", label: "6+ Wheeler (Truck/Bus)", icon: <CarOutlined /> },
   ];
-
-  // Handle form submission for adding/editing vehicles
   const handleSubmit = (values) => {
     if (editingVehicle) {
       setVehicles((prev) =>
