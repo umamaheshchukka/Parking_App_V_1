@@ -18,6 +18,7 @@ import OwnerPlacess from "./Cotainer/Pages/Owner/OwnerParkingAreas/Placess";
 import OwnerBookings from "./Cotainer/Pages/Owner/Bookings/OwnerBookings.jsx";
 import AccountSettings from "./Cotainer/Pages/AccountSettings/AccountSettings";
 import SlotBooking from "./Cotainer/Pages/User/Bookings/SlotBookings";
+import AdminDashboard from "./Cotainer/Pages/Admin/AdminDashboard.jsx";
 const mainRoutes = [
   {
     path: "/",
@@ -29,7 +30,7 @@ const mainRoutes = [
       },
       {
         path: "accountSettings",
-        element: <AccountSettings />,
+        element: <AdminDashboard />,
       },
       {
         path: "OwnerPlacess",
