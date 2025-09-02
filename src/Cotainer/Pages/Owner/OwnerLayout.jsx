@@ -258,7 +258,7 @@ const OwnerSidebar = () => {
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center space-x-3">
             <div
-              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center cursor-pointer"
               onClick={() => navigate("/accountSettings")}
             >
               <User className="w-6 h-6 text-white" />
