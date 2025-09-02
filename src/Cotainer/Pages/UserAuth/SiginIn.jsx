@@ -1,12 +1,33 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Row, Col, Avatar, Typography, Card, Space, message, Steps, Alert } from "antd";
-import { MailOutlined, LockOutlined, KeyOutlined, ArrowLeftOutlined, CheckCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Form,
+  Input,
+  Row,
+  Col,
+  Avatar,
+  Typography,
+  Card,
+  Space,
+  message,
+  Steps,
+  Alert,
+} from "antd";
+import {
+  MailOutlined,
+  LockOutlined,
+  KeyOutlined,
+  ArrowLeftOutlined,
+  CheckCircleOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import { FaCar, FaParking, FaShieldAlt } from "react-icons/fa";
 import { HiCheckCircle, HiMap } from "react-icons/hi";
 import { IoFingerPrint } from "react-icons/io5";
 import { startLoginUser } from "../../../Actions/Auth/Auth";
 import { useDispatch } from "react-redux";
+import React from "react"; // add this line
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -40,7 +61,7 @@ const mockResetPassword = (email, newPassword) => {
 };
 
 const Login = () => {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState("signIn");
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +92,7 @@ const Login = () => {
   }, [otpTimer, currentView]);
 
   const handleSignIn = (values) => {
-    dispatch(startLoginUser(values)).then((res)=>{
+    dispatch(startLoginUser(values)).then((res) => {
       setIsLoading(true);
       setFormErrors({});
       setTimeout(() => {
@@ -79,8 +100,7 @@ const Login = () => {
         setIsLoading(false);
         navigate("/userDashboard");
       }, 1500);
-    })
-   
+    });
   };
 
   const handleForgotPassword = async (values) => {
@@ -210,7 +230,9 @@ const Login = () => {
         className="space-y-4"
       >
         <Form.Item
-          label={<span className="text-gray-700 font-semibold">Email Address</span>}
+          label={
+            <span className="text-gray-700 font-semibold">Email Address</span>
+          }
           name="email_id"
           rules={[
             { required: true, message: "Please input your email!" },
@@ -326,7 +348,9 @@ const Login = () => {
         className="space-y-4"
       >
         <Form.Item
-          label={<span className="text-gray-700 font-semibold">Email Address</span>}
+          label={
+            <span className="text-gray-700 font-semibold">Email Address</span>
+          }
           name="email"
           rules={[
             { required: true, message: "Please input your email!" },
@@ -388,7 +412,11 @@ const Login = () => {
         className="space-y-4"
       >
         <Form.Item
-          label={<span className="text-gray-700 font-semibold">Parking Pass Code</span>}
+          label={
+            <span className="text-gray-700 font-semibold">
+              Parking Pass Code
+            </span>
+          }
           name="otp"
           rules={[
             { required: true, message: "Please input the pass code!" },
@@ -464,7 +492,9 @@ const Login = () => {
         className="space-y-4"
       >
         <Form.Item
-          label={<span className="text-gray-700 font-semibold">New Password</span>}
+          label={
+            <span className="text-gray-700 font-semibold">New Password</span>
+          }
           name="newPassword"
           rules={[
             { required: true, message: "Please input your new password!" },
@@ -479,7 +509,11 @@ const Login = () => {
         </Form.Item>
 
         <Form.Item
-          label={<span className="text-gray-700 font-semibold">Confirm Password</span>}
+          label={
+            <span className="text-gray-700 font-semibold">
+              Confirm Password
+            </span>
+          }
           name="confirmPassword"
           rules={[
             { required: true, message: "Please confirm your password!" },
@@ -567,7 +601,13 @@ const Login = () => {
       </div>
 
       <Row className="min-h-screen w-full">
-        <Col xs={0} sm={0} md={8} lg={14} className="hidden md:flex flex-col justify-center items-center p-8 text-white">
+        <Col
+          xs={0}
+          sm={0}
+          md={8}
+          lg={14}
+          className="hidden md:flex flex-col justify-center items-center p-8 text-white"
+        >
           <div className="max-w-lg text-center">
             <div className="mb-8">
               <div className="relative inline-block">
@@ -580,7 +620,9 @@ const Login = () => {
               </div>
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1"></div>
-                <span className="text-2xl text-blue-100 font-light tracking-wider">Pick Parking</span>
+                <span className="text-2xl text-blue-100 font-light tracking-wider">
+                  Pick Parking
+                </span>
                 <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1"></div>
               </div>
               <p className="text-xl text-blue-100 font-light">
@@ -606,7 +648,9 @@ const Login = () => {
                   <HiMap className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold text-lg">Real-Time Navigation</h3>
+                  <h3 className="font-semibold text-lg">
+                    Real-Time Navigation
+                  </h3>
                   <p className="text-blue-100 text-sm">
                     Find parking spots instantly
                   </p>
@@ -643,7 +687,13 @@ const Login = () => {
           </div>
         </Col>
 
-        <Col xs={24} sm={24} md={14} lg={10} className="flex justify-center items-center min-h-screen">
+        <Col
+          xs={24}
+          sm={24}
+          md={14}
+          lg={10}
+          className="flex justify-center items-center min-h-screen"
+        >
           <div className="w-full max-w-lg">
             <Card className="bg-white/95 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-teal-500 to-green-500"></div>

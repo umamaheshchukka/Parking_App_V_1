@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, Menu, Badge, Popover, List, Avatar, Button } from "antd";
 import {
   LayoutGrid,
   Calendar,
@@ -16,8 +16,8 @@ import {
   ChevronDown,
   User,
 } from "lucide-react";
-import { Button, Menu } from "antd";
-const { Sider, Content } = Layout;
+import { LayoutDashboard, MapPin, CalendarCheck } from "lucide-react";
+const { Sider, Content, Header } = Layout;
 const siderStyle = {
   background:
     "linear-gradient(135deg,rgb(31, 41, 83) 0%,rgb(80, 37, 123) 100%)",
@@ -25,7 +25,6 @@ const siderStyle = {
   borderRadius: "0 20px 20px 0",
   overflow: "hidden",
 };
-
 const menuStyle = {
   background: "transparent",
   border: "none",
@@ -67,7 +66,7 @@ const items = [
   },
 ];
 const UserSidebar = () => {
-  const [activeKey, setActiveKey] = useState(""); // State in Chinese for consistency
+  const [activeKey, setActiveKey] = useState("");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
@@ -110,26 +109,24 @@ const UserSidebar = () => {
       navigate(item.route);
     }
   };
-
-  const handleSubItemClick = (subItem, index) => {
-    setOpenDropdown(null);
-    navigate(subItem.route);
-  };
-
-  const getColorClasses = (color, isActive = false) => {
-    const colors = {
-      blue: isActive
-        ? "bg-blue-100 text-blue-700"
-        : "hover:bg-blue-50 hover:text-blue-700",
-      orange: isActive
-        ? "bg-orange-100 text-orange-700"
-        : "hover:bg-orange-50 hover:text-orange-700",
-      teal: isActive
-        ? "bg-teal-100 text-teal-700"
-        : "hover:bg-teal-50 hover:text-teal-700",
-    };
-    return colors[color] || colors.blue;
-  };
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      message: "New booking request for Parking Spot A by Jane Doe",
+      place: "Parking Spot A",
+      user: "Jane Doe",
+      time: "2025-09-01 14:30",
+      status: "pending",
+    },
+    {
+      id: 2,
+      message: "Booking request for Parking Spot B by John Smith",
+      place: "Parking Spot B",
+      user: "John Smith",
+      time: "2025-09-01 13:15",
+      status: "pending",
+    },
+  ]);
 
   return (
     <Layout className="h-screen">
@@ -138,10 +135,10 @@ const UserSidebar = () => {
         collapsible
         collapsed={isCollapsed}
         onCollapse={(collapsed) => setIsCollapsed(collapsed)}
-        className="bg-gradient-to-b from-gray-900 to-gray-800 text-white"
+        className="bg-gradient-to-b from-red-900 to-gray-800 text-white"
         theme="dark"
         style={{
-          ...siderStyle,
+          // ...siderStyle,
           position: "fixed",
           left: 0,
           top: 0,
@@ -164,7 +161,10 @@ const UserSidebar = () => {
 
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+            <div
+              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center cursor-pointer"
+              onClick={() => navigate("/accountSettings")}
+            >
               <User className="w-6 h-6 text-white" />
             </div>
             {!isCollapsed && (
@@ -184,7 +184,6 @@ const UserSidebar = () => {
           style={menuStyle}
           onClick={(info) => {
             const route = info.item.props.route;
-            console.log("Route:", route);
             if (route) navigate(route);
           }}
         />
@@ -192,7 +191,10 @@ const UserSidebar = () => {
       <Layout style={{ marginLeft: `${isCollapsed ? 80 : 256}px` }}>
         <Content
           className="p-2 bg-gray-100 thin-chat-scrollbar"
-          style={{ height: "100vh", overflowY: "auto" }}
+          style={{
+            height: "100vh",
+            overflowY: "auto",
+          }}
         >
           <Outlet />
         </Content>

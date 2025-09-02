@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// VehicleDashboard.jsx
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -15,23 +16,25 @@ import {
   Row,
   Col,
   Statistic,
+  message,
+  Switch,
 } from "antd";
+import VehiclesAdd from "./VehiclesAdd";
 import {
   CarOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
-const { TabPane } = Tabs;
+const { Title } = Typography;
 const { Option } = Select;
 
 const VehicleDashboard = () => {
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [vehicles, setVehicles] = useState([
     {
       id: 1,
@@ -42,6 +45,8 @@ const VehicleDashboard = () => {
       color: "Blue",
       isDefault: true,
       addedDate: "2024-01-15",
+      image:
+        "https://fastly.picsum.photos/id/1/200/300.jpg?hmac=jH5bDkLr6Tgy3oAg5khKCHeunZMHq0ehBZr6vGifPLY",
     },
     {
       id: 2,
@@ -52,82 +57,69 @@ const VehicleDashboard = () => {
       color: "Red",
       isDefault: false,
       addedDate: "2024-02-10",
+      image:
+        "https://fastly.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI",
     },
   ]);
+  const [filterType, setFilterType] = useState("all");
+  const [searchText, setSearchText] = useState("");
+  const [viewMode, setViewMode] = useState("table");
 
-  const vehicleTypeOptions = [
-    {
-      value: "2",
-      label: "2 Wheeler (Bike/Scooter)",
-      icon: <CarOutlined />, // Replaced MotorcycleOutlined with CarOutlined
-    },
-    { value: "4", label: "4 Wheeler (Car/SUV)", icon: <CarOutlined /> },
-    { value: "6", label: "6+ Wheeler (Truck/Bus)", icon: <CarOutlined /> },
-  ];
+  useEffect(() => {
+    localStorage.setItem("vehicles", JSON.stringify(vehicles));
+  }, [vehicles]);
 
-  // Function to render vehicle icons based on type
-  const getVehicleIcon = (type) => {
-    switch (type) {
-      case "2":
-        return <CarOutlined className="text-2xl text-blue-500" />; // Replaced MotorcycleOutlined
-      case "4":
-        return <CarOutlined className="text-2xl text-green-500" />;
-      case "6":
-        return <CarOutlined className="text-2xl text-orange-500" />;
-      default:
-        return <CarOutlined className="text-2xl text-gray-500" />;
-    }
+  const defaultImages = {
+    2: "https://via.placeholder.com/300x150?text=2+Wheeler",
+    4: "https://via.placeholder.com/300x150?text=4+Wheeler",
+    6: "https://via.placeholder.com/300x150?text=6+Wheeler",
   };
 
-  // Show modal for adding/editing vehicles
+  const getVehicleImage = (vehicle) => {
+    return vehicle.image && vehicle.image.trim() !== ""
+      ? vehicle.image
+      : defaultImages[vehicle.type] ||
+          "https://via.placeholder.com/300x150?text=Vehicle";
+  };
+
   const showModal = (vehicle = null) => {
     setEditingVehicle(vehicle);
     setIsModalVisible(true);
-    if (vehicle) {
-      form.setFieldsValue(vehicle);
-    } else {
-      form.resetFields();
-    }
   };
 
-  // Handle modal cancel
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingVehicle(null);
     form.resetFields();
   };
 
-  // Handle form submission for adding/editing vehicles
-  const handleSubmit = (values) => {
+  const handleAddVehicle = (vehicle) => {
     if (editingVehicle) {
       setVehicles((prev) =>
-        prev.map((v) => (v.id === editingVehicle.id ? { ...v, ...values } : v))
+        prev.map((v) => (v.id === vehicle.id ? vehicle : v))
       );
     } else {
-      const newVehicle = {
-        ...values,
-        id: Date.now(),
-        addedDate: new Date().toISOString().split("T")[0],
-        isDefault: vehicles.length === 0,
-      };
-      setVehicles((prev) => [...prev, newVehicle]);
+      setVehicles((prev) => [...prev, vehicle]);
     }
-    setIsModalVisible(false);
-    form.resetFields();
-    setEditingVehicle(null);
   };
 
   const deleteVehicle = (id) => {
     setVehicles((prev) => prev.filter((v) => v.id !== id));
+    message.success("Vehicle deleted successfully");
   };
+
   const setDefaultVehicle = (id) => {
-    setVehicles((prev) =>
-      prev.map((v) => ({
-        ...v,
-        isDefault: v.id === id,
-      }))
-    );
+    setVehicles((prev) => prev.map((v) => ({ ...v, isDefault: v.id === id })));
+    message.success("Default vehicle set successfully");
   };
+
+  const filteredVehicles = vehicles.filter(
+    (vehicle) =>
+      (filterType === "all" || vehicle.type === filterType) &&
+      (vehicle.brand.toLowerCase().includes(searchText.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchText.toLowerCase()) ||
+        vehicle.plateNumber.toLowerCase().includes(searchText.toLowerCase()))
+  );
 
   const vehicleColumns = [
     {
@@ -135,25 +127,31 @@ const VehicleDashboard = () => {
       key: "vehicle",
       render: (_, record) => (
         <div className="flex items-center space-x-3">
-          {getVehicleIcon(record.type)}
+          <Avatar src={getVehicleImage(record)} size={50} className="rounded" />
           <div>
-            <div className="font-semibold">
-              {record.brand} {record.model}
-            </div>
+            <div className="font-semibold text-gray-800">{`${record.brand} ${record.model}`}</div>
             <div className="text-sm text-gray-500">{record.plateNumber}</div>
           </div>
-          {record.isDefault && <Badge count="Default" className="ml-2" />}
+          {record.isDefault && (
+            <Badge
+              count="Default"
+              className="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded"
+            />
+          )}
         </div>
       ),
+      sorter: (a, b) =>
+        `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`),
     },
     {
       title: "Type",
       dataIndex: "type",
       render: (type) => (
-        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
           {type} Wheeler
         </span>
       ),
+      sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
       title: "Color",
@@ -161,17 +159,23 @@ const VehicleDashboard = () => {
       render: (color) => (
         <div className="flex items-center space-x-2">
           <div
-            className="w-4 h-4 rounded-full border"
+            className="w-4 h-4 rounded-full border shadow"
             style={{ backgroundColor: color.toLowerCase() }}
           />
-          <span>{color}</span>
+          <span className="capitalize text-gray-700">{color}</span>
         </div>
       ),
+      sorter: (a, b) => a.color.localeCompare(b.color),
     },
     {
       title: "Added Date",
       dataIndex: "addedDate",
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: (date) => (
+        <span className="text-gray-600">
+          {new Date(date).toLocaleDateString()}
+        </span>
+      ),
+      sorter: (a, b) => new Date(a.addedDate) - new Date(b.addedDate),
     },
     {
       title: "Actions",
@@ -204,160 +208,167 @@ const VehicleDashboard = () => {
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <Title level={3}>My Vehicles</Title>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => showModal()}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              Add New Vehicle
-            </Button>
-          </div>
-
-          <Card className="shadow-sm">
-            <Table
-              columns={vehicleColumns}
-              dataSource={vehicles}
-              rowKey="id"
-              pagination={{ pageSize: 5 }}
-              className="overflow-x-auto"
+  const renderCardView = () => (
+    <Row gutter={[16, 16]}>
+      {filteredVehicles.map((vehicle) => (
+        <Col xs={24} sm={12} md={8} lg={6} key={vehicle.id}>
+          <Card
+            className="rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-200"
+            cover={
+              <img
+                alt={vehicle.model}
+                src={getVehicleImage(vehicle)}
+                className="h-44 w-full object-cover rounded-t-xl"
+              />
+            }
+            actions={[
+              <EditOutlined key="edit" onClick={() => showModal(vehicle)} />,
+              <DeleteOutlined
+                key="delete"
+                onClick={() => deleteVehicle(vehicle.id)}
+              />,
+              !vehicle.isDefault && (
+                <span
+                  key="default"
+                  onClick={() => setDefaultVehicle(vehicle.id)}
+                  className="text-green-600 hover:text-green-800 cursor-pointer font-medium"
+                >
+                  Set Default
+                </span>
+              ),
+            ]}
+          >
+            <Card.Meta
+              avatar={<CarOutlined className="text-xl text-blue-600" />}
+              title={
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-800">
+                    {`${vehicle.brand} ${vehicle.model}`}
+                  </span>
+                  {vehicle.isDefault && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                      Default
+                    </span>
+                  )}
+                </div>
+              }
+              description={
+                <div className="text-gray-600 text-sm space-y-1">
+                  <p>{vehicle.plateNumber}</p>
+                  <p>Type: {vehicle.type} Wheeler</p>
+                  <p>Color: {vehicle.color}</p>
+                  <p>
+                    Added: {new Date(vehicle.addedDate).toLocaleDateString()}
+                  </p>
+                </div>
+              }
             />
           </Card>
+        </Col>
+      ))}
+    </Row>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <Title level={2} className="!text-blue-700">
+              Parking Dashboard
+            </Title>
+            <Space>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => showModal()}
+                className="bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2"
+              >
+                Add Vehicle
+              </Button>
+              <Switch
+                checkedChildren="Cards"
+                unCheckedChildren="Table"
+                checked={viewMode === "card"}
+                onChange={(checked) => setViewMode(checked ? "card" : "table")}
+              />
+            </Space>
+          </div>
+
+          <Card className="shadow-sm rounded-xl border border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between mb-4 gap-4">
+              <Input
+                placeholder="Search by brand, model, or plate"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                prefix={<FilterOutlined />}
+                className="sm:max-w-xs rounded-lg"
+              />
+              <Select
+                value={filterType}
+                onChange={setFilterType}
+                className="w-40"
+              >
+                <Option value="all">All Types</Option>
+                <Option value="2">2-Wheeler</Option>
+                <Option value="4">4-Wheeler</Option>
+                <Option value="6">6-Wheeler</Option>
+              </Select>
+            </div>
+            <Tabs
+              activeKey={viewMode}
+              onChange={setViewMode}
+              items={[
+                {
+                  key: "table",
+                  label: "Table View",
+                  children: (
+                    <Table
+                      columns={vehicleColumns}
+                      dataSource={filteredVehicles}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      className="overflow-x-auto"
+                    />
+                  ),
+                },
+                { key: "card", label: "Card View", children: renderCardView() },
+              ]}
+            />
+          </Card>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Statistic
+                title="Total Vehicles"
+                value={vehicles.length}
+                prefix={<CarOutlined />}
+                className="bg-white p-6 rounded-xl shadow border border-gray-200"
+              />
+            </Col>
+            <Col span={12}>
+              <Statistic
+                title="Default Vehicle"
+                value={vehicles.find((v) => v.isDefault)?.brand || "None"}
+                className="bg-white p-6 rounded-xl shadow border border-gray-200"
+              />
+            </Col>
+          </Row>
         </div>
       </div>
 
-      {/* Add/Edit Vehicle Modal */}
       <Modal
         title={editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
         width={600}
-        className="top-8"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          className="mt-6"
-        >
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="type"
-                label="Vehicle Type"
-                rules={[
-                  { required: true, message: "Please select vehicle type" },
-                ]}
-              >
-                <Select placeholder="Select vehicle type" size="large">
-                  {vehicleTypeOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      <div className="flex items-center space-x-2">
-                        {option.icon}
-                        <span>{option.label}</span>
-                      </div>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="brand"
-                label="Brand"
-                rules={[{ required: true, message: "Please enter brand" }]}
-              >
-                <Input placeholder="e.g., Toyota, Honda" size="large" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="model"
-                label="Model"
-                rules={[{ required: true, message: "Please enter model" }]}
-              >
-                <Input placeholder="e.g., Camry, Civic" size="large" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="plateNumber"
-                label="License Plate Number"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter license plate number",
-                  },
-                  { pattern: /^[A-Z0-9-]+$/, message: "Invalid format" },
-                ]}
-              >
-                <Input
-                  placeholder="ABC-1234"
-                  size="large"
-                  style={{ textTransform: "uppercase" }}
-                  onChange={(e) =>
-                    form.setFieldsValue({
-                      plateNumber: e.target.value.toUpperCase(),
-                    })
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="color"
-                label="Color"
-                rules={[{ required: true, message: "Please select color" }]}
-              >
-                <Select placeholder="Select color" size="large">
-                  {[
-                    "White",
-                    "Black",
-                    "Gray",
-                    "Silver",
-                    "Blue",
-                    "Red",
-                    "Green",
-                    "Yellow",
-                    "Brown",
-                    "Orange",
-                  ].map((color) => (
-                    <Option key={color} value={color}>
-                      {color}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <div className="flex justify-end space-x-3 mt-6">
-            <Button onClick={handleCancel} size="large">
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              {editingVehicle ? "Update Vehicle" : "Add Vehicle"}
-            </Button>
-          </div>
-        </Form>
+        <VehiclesAdd
+          handleCancel={handleCancel}
+          onAddVehicle={handleAddVehicle}
+          editingVehicle={editingVehicle}
+        />
       </Modal>
     </div>
   );

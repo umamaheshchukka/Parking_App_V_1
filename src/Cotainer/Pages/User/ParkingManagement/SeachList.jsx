@@ -9,8 +9,10 @@ import {
   Navigation,
   Heart,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ParkingResults() {
+  const navigate = useNavigate();
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const searchLocation = "Jayanagar, Bangalore";
@@ -208,6 +210,7 @@ export default function ParkingResults() {
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log("Reserve spot:", spot.id);
+                  navigate("/slotBooking");
                 }}
               >
                 {spot.available ? "Reserve" : "Full"}

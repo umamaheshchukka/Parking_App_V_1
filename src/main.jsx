@@ -16,11 +16,21 @@ import UserDashboard from "./Cotainer/Pages/User/Dashboard/UserDashboard";
 import VehicleDashboard from "./Cotainer/Pages/User/Vehicles/Vehicles";
 import OwnerPlacess from "./Cotainer/Pages/Owner/OwnerParkingAreas/Placess";
 import OwnerBookings from "./Cotainer/Pages/Owner/Bookings/OwnerBookings.jsx";
+import AccountSettings from "./Cotainer/Pages/AccountSettings/AccountSettings";
+import SlotBooking from "./Cotainer/Pages/User/Bookings/SlotBookings";
 const mainRoutes = [
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "slotBooking",
+        element: <SlotBooking />,
+      },
+      {
+        path: "accountSettings",
+        element: <AccountSettings />,
+      },
       {
         path: "OwnerPlacess",
         element: <OwnerPlacess />,
