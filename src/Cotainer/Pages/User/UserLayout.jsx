@@ -194,7 +194,6 @@ const UserSidebar = () => {
           style={{
             height: "100vh",
             overflowY: "auto",
-            paddingTop: 64,
           }}
         >
           <Outlet />

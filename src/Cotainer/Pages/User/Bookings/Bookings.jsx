@@ -34,6 +34,7 @@ import {
   BellOutlined,
 } from "@ant-design/icons";
 import moment from "moment"; // Added moment for time calculations
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -122,6 +123,7 @@ const UserBookings = () => {
   const [dateRange, setDateRange] = useState(null);
   const [groupByLocation, setGroupByLocation] = useState(false);
   const [showNotifications, setShowNotifications] = useState(true);
+  const navigate = useNavigate();
 
   // Get approved bookings for notifications
   const approvedBookings = useMemo(() => {
