@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import AuthSlice from "../../Actions/Auth/Auth";
-const reducers = combineReducers({ AuthSlice });
+import errorSlice from "../../Actions/errorSlice/errorSlice";
+const reducers = combineReducers({ AuthSlice, errorSlice });
 
 export default reducers;

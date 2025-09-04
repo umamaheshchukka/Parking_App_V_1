@@ -1,6 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  Navigate,
+} from "react-router-dom";
 import { Provider } from "react-redux";
 import Store from "./Cotainer/Store";
 import Login from "./Cotainer/Pages/UserAuth/SiginIn";
@@ -19,6 +23,13 @@ import OwnerBookings from "./Cotainer/Pages/Owner/Bookings/OwnerBookings.jsx";
 import AccountSettings from "./Cotainer/Pages/AccountSettings/AccountSettings";
 import SlotBooking from "./Cotainer/Pages/User/Bookings/SlotBookings";
 import AdminDashboard from "./Cotainer/Pages/Admin/AdminDashboard.jsx";
+
+// PrivateRoute component to protect routes
+const PrivateRoute = ({ element }) => {
+  const isAuthenticated = !!localStorage.getItem("token");
+  return isAuthenticated ? element : <Navigate to="/siginin" replace />;
+};
+
 const mainRoutes = [
   {
     path: "/",
@@ -26,15 +37,15 @@ const mainRoutes = [
     children: [
       {
         path: "slotBooking",
-        element: <SlotBooking />,
+        element: <PrivateRoute element={<SlotBooking />} />,
       },
       {
         path: "accountSettings",
-        element: <AdminDashboard />,
+        element: <PrivateRoute element={<AccountSettings />} />,
       },
       {
         path: "OwnerPlacess",
-        element: <OwnerPlacess />,
+        element: <PrivateRoute element={<OwnerPlacess />} />,
       },
       {
         path: "home",
@@ -50,32 +61,38 @@ const mainRoutes = [
       },
       {
         path: "OwnerDashboard",
-        element: <OwnerDashboard />,
+        element: <PrivateRoute element={<OwnerDashboard />} />,
       },
       {
         path: "ownerBookings",
-        element: <OwnerBookings />,
+        element: <PrivateRoute element={<OwnerBookings />} />,
       },
       {
         path: "userDashboard",
-        element: <UserDashboard />,
+        element: <PrivateRoute element={<UserDashboard />} />,
       },
       {
         path: "mapComponent",
-        element: <ParkingSearch />,
+        element: <PrivateRoute element={<ParkingSearch />} />,
       },
       {
         path: "UserBookings",
-        element: <UserBookings />,
+        element: <PrivateRoute element={<UserBookings />} />,
       },
       {
         path: "VehicleDashboard",
-        element: <VehicleDashboard />,
+        element: <PrivateRoute element={<VehicleDashboard />} />,
+      },
+      {
+        path: "adminDashboard",
+        element: <PrivateRoute element={<AdminDashboard />} />,
       },
     ],
   },
 ];
+
 const router = createBrowserRouter(mainRoutes);
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={Store}>
     <RouterProvider router={router} />
