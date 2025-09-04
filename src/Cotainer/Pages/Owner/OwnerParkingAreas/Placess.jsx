@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-
+import PlacessAdd from "./PlacessAdd";
+import {
+  Form,
+  Input,
+  Select,
+  Checkbox,
+  Button,
+  Modal,
+  TimePicker,
+  Upload,
+  message,
+} from "antd";
 export default function OwnerPlaces() {
   const [places, setPlaces] = useState([
     {
@@ -79,23 +90,6 @@ export default function OwnerPlaces() {
     0
   );
 
-  const vehicleTypeOptions = [
-    { label: "Car", value: "car" },
-    { label: "Motorcycle", value: "motorcycle" },
-    { label: "SUV", value: "suv" },
-    { label: "Van", value: "van" },
-    { label: "Truck", value: "truck" },
-  ];
-
-  const amenityOptions = [
-    { label: "Security Camera", value: "security" },
-    { label: "Covered Parking", value: "covered" },
-    { label: "EV Charging", value: "ev-charging" },
-    { label: "Shuttle Service", value: "shuttle" },
-    { label: "Valet Service", value: "valet" },
-    { label: "Car Wash", value: "car-wash" },
-  ];
-
   const showModal = (place = null) => {
     setEditingPlace(place);
     setIsModalVisible(true);
@@ -132,56 +126,6 @@ export default function OwnerPlaces() {
       setStartTime("06:00");
       setEndTime("22:00");
     }
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCheckboxChange = (setter, value, checked) => {
-    setter((prev) =>
-      checked ? [...prev, value] : prev.filter((v) => v !== value)
-    );
-  };
-
-  const handleOk = () => {
-    if (
-      !formData.name ||
-      !formData.address ||
-      selectedVehicleTypes.length === 0
-    ) {
-      alert("Please fill required fields: Name, Address, Vehicle Types");
-      return;
-    }
-    const operatingHours = is24Hours ? "24/7" : `${startTime} - ${endTime}`;
-
-    const placeData = {
-      ...formData,
-      operatingHours,
-      id: editingPlace ? editingPlace.id : Date.now(),
-      availableSpots: editingPlace
-        ? editingPlace.availableSpots
-        : formData.capacity,
-      rating: editingPlace ? editingPlace.rating : 0,
-      totalEarnings: editingPlace ? editingPlace.totalEarnings : 0,
-      totalBookings: editingPlace ? editingPlace.totalBookings : 0,
-      vehicleTypes: selectedVehicleTypes,
-      amenities: selectedAmenities,
-    };
-
-    if (editingPlace) {
-      setPlaces((prev) =>
-        prev.map((p) => (p.id === editingPlace.id ? placeData : p))
-      );
-      alert("Parking place updated successfully!");
-    } else {
-      setPlaces((prev) => [...prev, placeData]);
-      alert("Parking place added successfully!");
-    }
-
-    setIsModalVisible(false);
-    setEditingPlace(null);
   };
 
   const handleDelete = (id) => {
@@ -453,210 +397,17 @@ export default function OwnerPlaces() {
           </div>
         )}
       </div>
-
-      {/* Modal */}
-      {isModalVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-6">
-              {editingPlace ? "Edit Parking Place" : "Add New Parking Place"}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Place Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  className="border rounded w-full p-2"
-                  placeholder="Enter parking place name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleFormChange}
-                  className="border rounded w-full p-2"
-                >
-                  <option value="active">Active</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address *
-              </label>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleFormChange}
-                rows={2}
-                className="border rounded w-full p-2"
-                placeholder="Enter complete address"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Capacity *
-                </label>
-                <input
-                  type="number"
-                  name="capacity"
-                  value={formData.capacity}
-                  onChange={handleFormChange}
-                  min={1}
-                  max={1000}
-                  className="border rounded w-full p-2"
-                  placeholder="Number of parking spots"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price per Hour ($) *
-                </label>
-                <input
-                  type="number"
-                  name="pricePerHour"
-                  value={formData.pricePerHour}
-                  onChange={handleFormChange}
-                  min={1}
-                  max={1000}
-                  className="border rounded w-full p-2"
-                  placeholder="Price per hour"
-                />
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Approval Status
-              </label>
-              <select
-                name="approvalStatus"
-                value={formData.approvalStatus}
-                onChange={handleFormChange}
-                className="border rounded w-full p-2"
-              >
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vehicle Types Allowed *
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {vehicleTypeOptions.map((opt) => (
-                  <label key={opt.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedVehicleTypes.includes(opt.value)}
-                      onChange={(e) =>
-                        handleCheckboxChange(
-                          setSelectedVehicleTypes,
-                          opt.value,
-                          e.target.checked
-                        )
-                      }
-                      className="mr-2"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amenities
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {amenityOptions.map((opt) => (
-                  <label key={opt.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedAmenities.includes(opt.value)}
-                      onChange={(e) =>
-                        handleCheckboxChange(
-                          setSelectedAmenities,
-                          opt.value,
-                          e.target.checked
-                        )
-                      }
-                      className="mr-2"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={is24Hours}
-                  onChange={(e) => setIs24Hours(e.target.checked)}
-                  className="mr-2"
-                />
-                24/7 Operation
-              </label>
-            </div>
-            {!is24Hours && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Operating Hours
-                </label>
-                <div className="flex space-x-4">
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="border rounded p-2"
-                  />
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="border rounded p-2"
-                  />
-                </div>
-              </div>
-            )}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Images
-              </label>
-              <input
-                type="file"
-                multiple
-                className="border rounded w-full p-2"
-              />
-            </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setIsModalVisible(false)}
-                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleOk}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                {editingPlace ? "Update" : "Add"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={isModalVisible}
+        title={editingPlace ? "Edit Parking Place" : "Add New Parking Place"}
+        // onCancel={handleCancel}
+        footer={null}
+        width={800}
+        style={{ maxHeight: "90vh", overflowY: "auto" }}
+        centered={true}
+      >
+        <PlacessAdd setIsModalVisible={setIsModalVisible} />
+      </Modal>
     </div>
   );
 }

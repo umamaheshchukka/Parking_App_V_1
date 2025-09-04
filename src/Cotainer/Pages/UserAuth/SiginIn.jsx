@@ -25,9 +25,15 @@ import {
 import { FaCar, FaParking, FaShieldAlt } from "react-icons/fa";
 import { HiCheckCircle, HiMap } from "react-icons/hi";
 import { IoFingerPrint } from "react-icons/io5";
-import { startLoginUser } from "../../../Actions/Auth/Auth";
+import {
+  startLoginUser,
+  startVerifyEmail,
+  startForgotPassword,
+  startVerifyOtp,
+  startsetforgotpassword,
+} from "../../../Actions/Auth/Auth";
 import { useDispatch } from "react-redux";
-import React from "react"; // add this line
+import React from "react";
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -39,19 +45,6 @@ const mockSendOTP = (email) => {
     }, 1500);
   });
 };
-
-const mockVerifyOTP = (email, otp) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (otp === "123456") {
-        resolve({ success: true, message: "OTP verified successfully" });
-      } else {
-        resolve({ success: false, message: "Invalid OTP" });
-      }
-    }, 1000);
-  });
-};
-
 const mockResetPassword = (email, newPassword) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -78,6 +71,7 @@ const Login = () => {
   const [forgotForm] = Form.useForm();
   const [otpForm] = Form.useForm();
   const [resetForm] = Form.useForm();
+  const [loginOtpForm] = Form.useForm(); // New form for login OTP
 
   useEffect(() => {
     let interval;
@@ -85,7 +79,11 @@ const Login = () => {
       interval = setInterval(() => {
         setOtpTimer(otpTimer - 1);
       }, 1000);
-    } else if (otpTimer === 0 && currentView === "otpVerification") {
+    } else if (
+      otpTimer === 0 &&
+      (currentView === "otpVerification" ||
+        currentView === "loginOtpVerification")
+    ) {
       setCanResendOtp(true);
     }
     return () => clearInterval(interval);
@@ -93,56 +91,87 @@ const Login = () => {
 
   const handleSignIn = (values) => {
     dispatch(startLoginUser(values)).then((res) => {
-      setIsLoading(true);
-      setFormErrors({});
-      setTimeout(() => {
-        message.success("Signed in successfully!");
-        setIsLoading(false);
-        navigate("/userDashboard");
-      }, 1500);
+      console.log(res, "res");
+      if (res?.meta?.requestStatus === "fulfilled") {
+        setIsLoading(true);
+        setFormErrors({});
+        setTimeout(() => {
+          message.success("Signed in successfully!");
+          setIsLoading(false);
+          navigate("/");
+        }, 1500);
+      } else if (res?.payload?.error === "User is not verified") {
+        // Trigger OTP sending for unverified user
+        setEmail(values.email);
+        mockSendOTP(values.email).then((response) => {
+          if (response.success) {
+            message.success("OTP sent to your email!");
+            setCurrentView("loginOtpVerification");
+            setCurrentStep(1);
+            setOtpTimer(300);
+            setCanResendOtp(false);
+          }
+        });
+      }
     });
   };
 
-  const handleForgotPassword = async (values) => {
-    setIsLoading(true);
-    setEmail(values.email);
+  const handleLoginOtpVerification = async (values) => {
+    dispatch(startVerifyEmail({ email, otp: values.otp })).then((res) => {
+      if (res?.meta?.requestStatus === "fulfilled") {
+        message.success("OTP verified successfully!");
+        setIsLoading(false);
+        setCurrentView("signIn");
+        setCurrentStep(0);
+        loginOtpForm.resetFields();
+      } else {
+        message.error(res?.payload?.error || "OTP verification failed");
+        setFormErrors({
+          otp: res?.payload?.error || "OTP verification failed",
+        });
+      }
+    });
+    // try {
+    //   const response = await mockVerifyOTP(email, values.otp);
+    //   if (response.success) {
+    //     message.success("OTP verified successfully!");
+    //     setIsLoading(false);
+    //     setCurrentView("signIn");
+    //     setCurrentStep(0);
+    //     loginOtpForm.resetFields();
+    //   } else {
+    //     message.error(response.message);
+    //     setFormErrors({ otp: response.message });
+    //   }
+    // } catch (error) {
+    //   message.error("OTP verification failed");
+    // } finally {
+    //   setIsLoading(false);
+    // }
+  };
 
-    try {
-      const response = await mockSendOTP(values.email);
-      if (response.success) {
-        message.success("OTP sent to your email!");
+  const handleForgotPassword = async (values) => {
+    dispatch(startForgotPassword({ email: values.email })).then((res) => {
+      if (res?.meta?.requestStatus === "fulfilled") {
+        message.success("Parking OTP sent to your email!");
+        setEmail(values.email);
         setCurrentView("otpVerification");
         setCurrentStep(1);
         setOtpTimer(300);
         setCanResendOtp(false);
-      } else {
-        message.error(response.message);
+        forgotForm.resetFields();
       }
-    } catch (error) {
-      message.error("Failed to send OTP");
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleVerifyOTP = async (values) => {
-    setIsLoading(true);
-
-    try {
-      const response = await mockVerifyOTP(email, values.otp);
-      if (response.success) {
+    dispatch(startVerifyOtp({ email, otp: values.otp })).then((res) => {
+      if (res?.meta?.requestStatus === "fulfilled") {
         message.success("OTP verified successfully!");
         setCurrentView("resetPassword");
         setCurrentStep(2);
-      } else {
-        message.error(response.message);
-        setFormErrors({ otp: response.message });
       }
-    } catch (error) {
-      message.error("OTP verification failed");
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleResetPassword = async (values) => {
@@ -150,26 +179,20 @@ const Login = () => {
       setFormErrors({ confirmPassword: "Passwords don't match" });
       return;
     }
-
-    setIsLoading(true);
-
-    try {
-      const response = await mockResetPassword(email, values.newPassword);
-      if (response.success) {
+    dispatch(
+      startsetforgotpassword({
+        email,
+        password: values.newPassword,
+      })
+    ).then((res) => {
+      if (res?.meta?.requestStatus === "fulfilled") {
         message.success("Password reset successfully!");
-        setCurrentView("success");
-        setCurrentStep(3);
-        setTimeout(() => {
-          handleBackToSignIn();
-        }, 3000);
-      } else {
-        message.error(response.message);
+        setCurrentView("signIn");
+        setCurrentStep(0);
+        resetForm.resetFields();
+        setFormErrors({});
       }
-    } catch (error) {
-      message.error("Password reset failed");
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleResendOTP = async () => {
@@ -182,6 +205,7 @@ const Login = () => {
         setOtpTimer(300);
         setCanResendOtp(false);
         otpForm.resetFields();
+        loginOtpForm.resetFields();
       }
     } catch (error) {
       message.error("Failed to resend OTP");
@@ -202,6 +226,7 @@ const Login = () => {
     forgotForm.resetFields();
     otpForm.resetFields();
     resetForm.resetFields();
+    loginOtpForm.resetFields();
   };
 
   const formatTime = (seconds) => {
@@ -233,7 +258,7 @@ const Login = () => {
           label={
             <span className="text-gray-700 font-semibold">Email Address</span>
           }
-          name="email_id"
+          name="email"
           rules={[
             { required: true, message: "Please input your email!" },
             { type: "email", message: "Invalid email format" },
@@ -311,6 +336,92 @@ const Login = () => {
             Create New Account
           </Button>
         </div>
+      </Form>
+    </Space>
+  );
+
+  const renderLoginOtpVerificationForm = () => (
+    <Space direction="vertical" className="w-full">
+      <div className="text-center mb-8">
+        <Button
+          type="link"
+          icon={<ArrowLeftOutlined />}
+          onClick={handleBackToSignIn}
+          className="absolute top-4 left-4 text-gray-500 hover:text-gray-700 p-0"
+        >
+          Back
+        </Button>
+        <Title className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+          Verify Your Account
+        </Title>
+        <Text className="text-gray-500 text-base">
+          Enter the 4-digit code sent to {email}
+        </Text>
+      </div>
+
+      <Steps current={currentStep} className="mb-8">
+        <Step title="Email" icon={<MailOutlined />} />
+        <Step title="Verify OTP" icon={<KeyOutlined />} />
+      </Steps>
+
+      <Form
+        form={loginOtpForm}
+        onFinish={handleLoginOtpVerification}
+        layout="vertical"
+        className="space-y-4"
+      >
+        <Form.Item
+          label={
+            <span className="text-gray-700 font-semibold">
+              Verification Code
+            </span>
+          }
+          name="otp"
+          rules={[
+            { required: true, message: "Please input the OTP!" },
+            { len: 4, message: "OTP must be 4 digits" },
+          ]}
+          validateStatus={formErrors.otp ? "error" : ""}
+          help={formErrors.otp}
+        >
+          <Input
+            prefix={<KeyOutlined className="text-gray-400" />}
+            placeholder="Enter 4-digit code"
+            maxLength={4}
+            className="h-12 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center tracking-widest"
+            style={{ letterSpacing: "8px" }}
+          />
+        </Form.Item>
+
+        <div className="text-center mb-6">
+          {otpTimer > 0 ? (
+            <Text className="text-gray-500">
+              Resend code in {formatTime(otpTimer)}
+            </Text>
+          ) : (
+            <Button
+              type="link"
+              onClick={handleResendOTP}
+              loading={isLoading}
+              disabled={!canResendOtp}
+              className="text-blue-600 hover:text-blue-800 font-semibold"
+            >
+              <ReloadOutlined /> Resend Code
+            </Button>
+          )}
+        </div>
+
+        <Form.Item className="mb-0">
+          <Button
+            htmlType="submit"
+            type="primary"
+            block
+            loading={isLoading}
+            className="h-12 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+          >
+            Submit OTP
+          </Button>
+        </Form.Item>
       </Form>
     </Space>
   );
@@ -394,7 +505,7 @@ const Login = () => {
           Verify Parking Pass
         </Title>
         <Text className="text-gray-500 text-base">
-          Enter the 6-digit code sent to {email}
+          Enter the 4-digit code sent to {email}
         </Text>
       </div>
 
@@ -420,15 +531,15 @@ const Login = () => {
           name="otp"
           rules={[
             { required: true, message: "Please input the pass code!" },
-            { len: 6, message: "Pass code must be 6 digits" },
+            { len: 4, message: "Pass code must be 4 digits" },
           ]}
           validateStatus={formErrors.otp ? "error" : ""}
           help={formErrors.otp}
         >
           <Input
             prefix={<KeyOutlined className="text-gray-400" />}
-            placeholder="Enter 6-digit code"
-            maxLength={6}
+            placeholder="Enter 4-digit code"
+            maxLength={4}
             className="h-12 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center tracking-widest"
             style={{ letterSpacing: "8px" }}
           />
@@ -715,6 +826,8 @@ const Login = () => {
               {currentView === "otpVerification" && renderOTPVerificationForm()}
               {currentView === "resetPassword" && renderResetPasswordForm()}
               {currentView === "success" && renderSuccessView()}
+              {currentView === "loginOtpVerification" &&
+                renderLoginOtpVerificationForm()}
             </Card>
           </div>
         </Col>

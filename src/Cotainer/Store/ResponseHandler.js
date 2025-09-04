@@ -1,40 +1,44 @@
 import { isRejectedWithValue } from "@reduxjs/toolkit";
-// import { setError } from "../../actions/errorSlice/errorSlice";
+import { setError } from "../../Actions/errorSlice/errorSlice";
+
 const tokenMiddleware =
   ({ dispatch }) =>
   (next) =>
   (action) => {
     if (isRejectedWithValue(action)) {
-      console.log(action, "action");
       let errorMessage;
-      const normalizedPayload = {};
-      if (action.payload && typeof action.payload === "object") {
-        for (const key in action.payload) {
-          if (Object.hasOwnProperty.call(action.payload, key)) {
-            normalizedPayload[key.toLowerCase()] = action.payload[key];
-          }
-        }
-      }
-      if (typeof normalizedPayload.errors === "string") {
-        errorMessage = normalizedPayload.errors || action?.error?.message;
-        //alert(1);
-      } else if (
-        typeof normalizedPayload.errors === "object" &&
-        normalizedPayload.errors !== null
-      ) {
-        //alert(2);
-        errorMessage = Object.values(normalizedPayload.errors)[0];
+      console.log(action, "action from response handler");
+
+      // Check for both errors and error
+      const errors = action.payload?.errors || action.payload?.error;
+
+      if (typeof errors === "string") {
+        errorMessage = errors;
+      } else if (Array.isArray(errors)) {
+        // case: errors = [{ path: "email", msg: "already exist" }, "Some error"]
+        errorMessage = errors
+          .map((err) => {
+            if (typeof err === "object" && err !== null) {
+              if (err.path && err.msg) {
+                return `${err.path}: ${err.msg}`;
+              }
+              return err.msg || JSON.stringify(err);
+            }
+            return err;
+          })
+          .join(", ");
+      } else if (typeof errors === "object" && errors !== null) {
+        // case: errors: { email: "already exist", phone: "already exist" }
+        errorMessage = Object.entries(errors)
+          .map(([field, msg]) => `${field}: ${msg}`)
+          .join(", ");
       } else {
-        //alert(3);
-        errorMessage = normalizedPayload.message || action?.error?.message;
+        // fallback
+        errorMessage =
+          action.payload?.message || action?.error?.message || "Unknown error";
       }
 
-      console.log(action.payload, normalizedPayload, "errmiddle");
-      console.log(errorMessage, "errorMessage");
-
-      // errorMessage
-      console.log(action.payload, "errmiddle");
-      //   dispatch(setError({ msg: errorMessage, type: "error" }));
+      // Token specific handling
       if (
         errorMessage === "Token is blocked" ||
         errorMessage === "Expired token" ||
@@ -44,7 +48,11 @@ const tokenMiddleware =
         window.location.href = "/";
         return;
       }
+
+      // Dispatch error to global store
+      dispatch(setError({ msg: errorMessage, type: "error" }));
     }
+
     return next(action);
   };
 

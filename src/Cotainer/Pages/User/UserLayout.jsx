@@ -1,152 +1,87 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Layout, Menu, Badge, Popover, List, Avatar, Button } from "antd";
 import {
-  LayoutGrid,
+  Map,
+  BarChart,
   Calendar,
-  BarChart3,
-  History,
-  ArrowDown,
-  ArrowUp,
-  Phone,
-  Mail,
-  Bell,
-  Settings,
-  Search,
-  ChevronDown,
+  Truck,
+  LogOut,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { LayoutDashboard, MapPin, CalendarCheck } from "lucide-react";
-const { Sider, Content, Header } = Layout;
-const siderStyle = {
-  background:
-    "linear-gradient(135deg,rgb(31, 41, 83) 0%,rgb(80, 37, 123) 100%)",
-  boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
-  borderRadius: "0 20px 20px 0",
-  overflow: "hidden",
-};
-const menuStyle = {
-  background: "transparent",
-  border: "none",
-  fontSize: "14px",
-  fontWeight: "500",
-};
-const items = [
+
+const menuItems = [
   {
     key: "1",
-    icon: <LayoutGrid />,
-    label: "mapComponent",
+    icon: <Map className="w-5 h-5" />,
+    label: "Map",
     route: "/mapComponent",
-    description: "mapComponent",
+    description: "Map Component",
     color: "blue",
   },
   {
     key: "2",
-    icon: <BarChart3 />,
-    label: "userDashboard",
+    icon: <BarChart className="w-5 h-5" />,
+    label: "Dashboard",
     route: "/userDashboard",
-    description: "userDashboard",
+    description: "User Dashboard",
     color: "orange",
   },
   {
     key: "3",
-    icon: <ArrowUp />,
+    icon: <Calendar className="w-5 h-5" />,
     label: "Bookings",
     route: "/UserBookings",
-    description: "UserBookings",
+    description: "User Bookings",
     color: "orange",
   },
   {
     key: "4",
-    icon: <ChevronDown />,
-    label: "VehicleDashboard",
+    icon: <Truck className="w-5 h-5" />,
+    label: "Vehicle Dashboard",
     route: "/VehicleDashboard",
-    description: "VehicleDashboard",
+    description: "Vehicle Dashboard",
     color: "orange",
   },
+  {
+    key: "5",
+    icon: <LogOut className="w-5 h-5" />,
+    label: "Logout",
+    route: "/logout",
+    description: "Logout",
+    color: "red",
+  },
 ];
+
 const UserSidebar = () => {
   const [activeKey, setActiveKey] = useState("");
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const dropdownRefs = useRef({});
-  const handleClick = (info) => {
-    // `info.item.props` contains the original props passed to the Menu.Item
-    console.log("Selected label:", info);
-  };
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (openDropdown !== null && dropdownRefs.current[openDropdown]) {
-        if (!dropdownRefs.current[openDropdown].contains(event.target)) {
-          setOpenDropdown(null);
-        }
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openDropdown]);
 
   useEffect(() => {
     const currentPath = location.pathname;
-    const activeItem = items.find((item) => {
-      if (item.subItems) {
-        return item.subItems.some((subItem) => subItem.route === currentPath);
-      }
-      return item.route === currentPath;
-    });
+    const activeItem = menuItems.find((item) => item.route === currentPath);
     if (activeItem) {
       setActiveKey(activeItem.key);
     }
   }, [location.pathname]);
 
-  const handleItemClick = (item, index) => {
-    if (item.subItems) {
-      setOpenDropdown(openDropdown === index ? null : index);
-    } else {
-      setOpenDropdown(null);
-      navigate(item.route);
-    }
+  const handleLogout = () => {
+    navigate("/login");
   };
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      message: "New booking request for Parking Spot A by Jane Doe",
-      place: "Parking Spot A",
-      user: "Jane Doe",
-      time: "2025-09-01 14:30",
-      status: "pending",
-    },
-    {
-      id: 2,
-      message: "Booking request for Parking Spot B by John Smith",
-      place: "Parking Spot B",
-      user: "John Smith",
-      time: "2025-09-01 13:15",
-      status: "pending",
-    },
-  ]);
 
   return (
-    <Layout className="h-screen">
-      <Sider
-        width={256}
-        collapsible
-        collapsed={isCollapsed}
-        onCollapse={(collapsed) => setIsCollapsed(collapsed)}
-        className="bg-gradient-to-b from-red-900 to-gray-800 text-white"
-        theme="dark"
-        style={{
-          // ...siderStyle,
-          position: "fixed",
-          left: 0,
-          top: 0,
-          height: "100vh",
-          overflowY: "auto",
-        }}
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-gradient-to-b from-red-900 to-gray-800 text-white shadow-lg transition-all duration-300 ${
+          isCollapsed ? "w-20" : "w-64"
+        } overflow-y-auto rounded-r-3xl z-10 flex flex-col`}
       >
-        <div className="p-4 border-b border-gray-700">
+        {/* Logo Section */}
+        <div className="p-4 border-b border-gray-700 flex items-center">
           <div className="flex items-center space-x-3">
             <img
               src="/voxpro.ico"
@@ -159,47 +94,96 @@ const UserSidebar = () => {
           </div>
         </div>
 
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div
-              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center cursor-pointer"
-              onClick={() => navigate("/accountSettings")}
-            >
-              <User className="w-6 h-6 text-white" />
+        {/* User Profile Section */}
+        <div className="p-1 border-b border-white/10">
+          <div
+            className="group flex items-center space-x-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            onClick={() => navigate("/accountSettings")}
+          >
+            <div className="relative">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
+              </div>
             </div>
             {!isCollapsed && (
-              <div>
-                <div className="text-sm font-medium text-white">John</div>{" "}
-                <div className="text-xs text-gray-400">CHess</div>
+              <div className="flex-1 overflow-hidden">
+                <div className="text-sm font-semibold text-white group-hover:text-blue-200 transition-colors">
+                  John Doe
+                </div>
+                <div className="text-xs text-white/60 group-hover:text-white/80 transition-colors">
+                  Fleet Manager
+                </div>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-xs text-green-400">Online</span>
+                </div>
               </div>
+            )}
+            {!isCollapsed && (
+              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/80 transition-all group-hover:translate-x-1" />
             )}
           </div>
         </div>
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          theme="dark"
-          items={items}
-          style={menuStyle}
-          onClick={(info) => {
-            const route = info.item.props.route;
-            if (route) navigate(route);
-          }}
-        />
-      </Sider>
-      <Layout style={{ marginLeft: `${isCollapsed ? 80 : 256}px` }}>
-        <Content
-          className="p-2 bg-gray-100 thin-chat-scrollbar"
-          style={{
-            height: "100vh",
-            overflowY: "auto",
-          }}
-        >
+
+        {/* Menu Items */}
+        <div className="mt-4 flex-1">
+          {menuItems.map((item) => (
+            <div
+              key={item.key}
+              className={`flex items-center p-4 cursor-pointer hover:bg-gray-700 transition-colors ${
+                activeKey === item.key ? "bg-gray-700" : ""
+              }`}
+              onClick={() => {
+                if (item.route === "/logout") {
+                  handleLogout();
+                } else if (item.route) {
+                  navigate(item.route);
+                }
+              }}
+            >
+              <div className={`text-${item.color}-400`}>{item.icon}</div>
+              {!isCollapsed && (
+                <div className="ml-3">
+                  <div className="text-sm font-medium text-white">
+                    {item.label}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {item.description}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Toggle Button at Bottom */}
+        <div className="p-4 border-t border-gray-700">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="text-white focus:outline-none w-full flex justify-center"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-5 h-5" />
+            ) : (
+              <ChevronLeft className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 p-2 bg-gray-100 transition-all duration-300`}
+        style={{ marginLeft: isCollapsed ? 80 : 256 }}
+      >
+        <div className="min-h-screen overflow-y-auto thin-chat-scrollbar">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </div>
+    </div>
   );
 };
 

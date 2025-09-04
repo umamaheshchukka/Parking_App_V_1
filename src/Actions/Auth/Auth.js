@@ -36,7 +36,7 @@ export const startLoginUser = createAsyncThunk(
 
 export const startLogOutUser = createAsyncThunk(
   "user/logout",
-  async (formData) => {
+  async (formData, { rejectWithValue }) => {
     const Api = `${url}/api/logout`;
     try {
       const response = await axios.delete(Api, {
@@ -53,7 +53,7 @@ export const startLogOutUser = createAsyncThunk(
 );
 export const startForceLogOut = createAsyncThunk(
   "user/forcelogout",
-  async (formData) => {
+  async (formData, { rejectWithValue }) => {
     const Api = `${url}/api/forceLogout`;
     try {
       const response = await axios.post(Api, formData);
@@ -67,21 +67,20 @@ export const startForceLogOut = createAsyncThunk(
 export const startForgotPassword = createAsyncThunk(
   "user/forgotPassword",
   async (formData, { rejectWithValue }) => {
-    const Api = `${url}/api/user/forgotPassword`;
+    const Api = `${url}/api/users/forgotpassword`;
     try {
-      const response = await axios.get(Api, { params: formData });
+      const response = await axios.post(Api, formData);
       return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.errors || "An error occurred"
       );
-      // throw new Error(error.response?.data?.message || "An error occurred");
     }
   }
 );
 export const startVerifyPassword = createAsyncThunk(
   "user/verifyPassword",
-  async (formData) => {
+  async (formData, { rejectWithValue }) => {
     const Api = `${url}/api/user/verifyForgotPasswordOtp`;
     try {
       const response = await axios.get(Api, { params: formData });
@@ -91,18 +90,46 @@ export const startVerifyPassword = createAsyncThunk(
     }
   }
 );
-export const startUpdatePassword = createAsyncThunk(
-  "user/updatePassword",
-  async (formData) => {
+export const startsetforgotpassword = createAsyncThunk(
+  "user/setforgotpassword",
+  async (formData, { rejectWithValue }) => {
     console.log(formData, "form");
-    const Api = `${url}/api/user/updatePassword`;
+    const Api = `${url}/api/users/setforgotpassword`;
     try {
-      const response = await axios.post(Api, formData);
+      const response = await axios.put(Api, formData);
       console.log(response.data, "res");
       return response.data;
     } catch (error) {
       console.log(error, "err");
-      throw new Error(error.response?.data?.message || "An error occurred");
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+export const startVerifyEmail = createAsyncThunk(
+  "user/verifyEmail",
+  async (formData, { rejectWithValue }) => {
+    const Api = `${url}/api/verify/emails`;
+    console.log(formData, "form");
+    try {
+      const response = await axios.put(Api, formData);
+      return response.data;
+    } catch (error) {
+      console.log(error, "err");
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+export const startVerifyOtp = createAsyncThunk(
+  "user/verifyOtp",
+  async (formData, { rejectWithValue }) => {
+    const Api = `${url}/api/users/verify/otp`;
+    console.log(formData, "form");
+    try {
+      const response = await axios.get(Api, { params: formData });
+      return response.data;
+    } catch (error) {
+      console.log(error, "err");
+      return rejectWithValue(error.response?.data);
     }
   }
 );
@@ -128,15 +155,8 @@ const AuthSlice = createSlice({
       .addCase(startLoginUser.fulfilled, (state, action) => {
         state.loginLoading = false;
         localStorage.setItem("token", action.payload.token);
-        localStorage.setItem("email_id", action.payload.login_id);
-        localStorage.setItem("login_id", action.payload.login_id);
-        localStorage.setItem("agent_ext", action.payload.agent_ext);
-        localStorage.setItem("userId", action.payload.userId);
-        localStorage.setItem("role", action.payload.user_type);
-        localStorage.setItem("fname", action.payload.first_name);
-        localStorage.setItem("lname", action.payload.last_name);
-        localStorage.setItem("ext_list", action.payload.ext_list);
-        localStorage.setItem("rabbitmq_id", action.payload.rabbitmq_id);
+        localStorage.setItem("role", action.payload.role);
+        localStorage.setItem("id", action.payload.id);
         state.userDetails = action.payload;
       })
       .addCase(startLoginUser.rejected, (state, action) => {
@@ -205,14 +225,14 @@ const AuthSlice = createSlice({
         state.verifyLoading = false;
         state.error = action.error.message;
       })
-      .addCase(startUpdatePassword.pending, (state) => {
+      .addCase(startsetforgotpassword.pending, (state) => {
         state.passwordLoading = true;
         state.error = null;
       })
-      .addCase(startUpdatePassword.fulfilled, (state, action) => {
+      .addCase(startsetforgotpassword.fulfilled, (state, action) => {
         state.passwordLoading = false;
       })
-      .addCase(startUpdatePassword.rejected, (state, action) => {
+      .addCase(startsetforgotpassword.rejected, (state, action) => {
         state.passwordLoading = false;
         state.error = action.error.message;
       });

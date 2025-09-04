@@ -1,248 +1,117 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Layout, Menu, Badge, Popover, List, Avatar, Button } from "antd";
 import {
-  LayoutGrid,
-  Calendar,
-  BarChart3,
-  History,
-  ArrowDown,
-  ArrowUp,
-  Phone,
-  Mail,
-  Bell,
-  Settings,
-  Search,
-  ChevronDown,
   User,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  LayoutDashboard,
+  MapPin,
+  CalendarCheck,
+  Bell,
 } from "lucide-react";
-import { LayoutDashboard, MapPin, CalendarCheck } from "lucide-react";
-const { Sider, Content, Header } = Layout;
-const siderStyle = {
-  background:
-    "linear-gradient(135deg,rgb(31, 41, 83) 0%,rgb(80, 37, 123) 100%)",
-  boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
-  borderRadius: "0 20px 20px 0",
-  overflow: "hidden",
-};
-const menuStyle = {
-  background: "transparent",
-  border: "none",
-  fontSize: "14px",
-  fontWeight: "500",
-};
-const items = [
+
+const menuItems = [
   {
     key: "2",
-    icon: <LayoutDashboard />,
+    icon: <LayoutDashboard className="w-5 h-5" />,
     label: "OwnerDashboard",
     route: "/OwnerDashboard",
     description: "OwnerDashboard",
-    color: "orange",
+    color: "text-orange-400",
   },
   {
     key: "1",
-    icon: <MapPin />,
+    icon: <MapPin className="w-5 h-5" />,
     label: "OwnerPlacess",
     route: "/OwnerPlacess",
     description: "OwnerPlacess",
-    color: "blue",
+    color: "text-blue-400",
   },
   {
     key: "3",
-    icon: <CalendarCheck />,
+    icon: <CalendarCheck className="w-5 h-5" />,
     label: "Bookings",
     route: "/ownerBookings",
     description: "OwnerBookings",
-    color: "orange",
+    color: "text-orange-400",
   },
 ];
+
 const OwnerSidebar = () => {
   const [activeKey, setActiveKey] = useState("");
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const dropdownRefs = useRef({});
-  const handleClick = (info) => {
-    // `info.item.props` contains the original props passed to the Menu.Item
-    console.log("Selected label:", info);
-  };
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (openDropdown !== null && dropdownRefs.current[openDropdown]) {
-        if (!dropdownRefs.current[openDropdown].contains(event.target)) {
-          setOpenDropdown(null);
-        }
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openDropdown]);
+
+  // Sample notifications data (replace with actual data source as needed)
+  const notifications = [
+    { id: 1, status: "pending", message: "New booking received" },
+    { id: 2, status: "pending", message: "Maintenance request" },
+    { id: 3, status: "completed", message: "Booking confirmed" },
+  ];
 
   useEffect(() => {
     const currentPath = location.pathname;
-    const activeItem = items.find((item) => {
-      if (item.subItems) {
-        return item.subItems.some((subItem) => subItem.route === currentPath);
-      }
-      return item.route === currentPath;
-    });
+    const activeItem = menuItems.find((item) => item.route === currentPath);
     if (activeItem) {
       setActiveKey(activeItem.key);
     }
   }, [location.pathname]);
 
-  const handleItemClick = (item, index) => {
-    if (item.subItems) {
-      setOpenDropdown(openDropdown === index ? null : index);
-    } else {
-      setOpenDropdown(null);
-      navigate(item.route);
-    }
+  const handleLogout = () => {
+    navigate("/login");
   };
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      message: "New booking request for Parking Spot A by Jane Doe",
-      place: "Parking Spot A",
-      user: "Jane Doe",
-      time: "2025-09-01 14:30",
-      status: "pending",
-    },
-    {
-      id: 2,
-      message: "Booking request for Parking Spot B by John Smith",
-      place: "Parking Spot B",
-      user: "John Smith",
-      time: "2025-09-01 13:15",
-      status: "pending",
-    },
-  ]);
-  const handleNotificationAction = (notificationId, action) => {
-    setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === notificationId ? { ...notif, status: action } : notif
-      )
-    );
-  };
+
+  // Notification popover content (simplified for Tailwind)
   const notificationContent = (
-    <div className="w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-xl p-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+    <div className="p-4 bg-white rounded-lg shadow-lg max-w-xs">
+      <h3 className="text-sm font-semibold text-gray-800 mb-2">
         Notifications
       </h3>
-      {notifications.length === 0 ? (
-        <p className="text-gray-500 text-sm">No new notifications</p>
-      ) : (
-        <List
-          dataSource={notifications}
-          renderItem={(item) => (
-            <List.Item
-              className="flex flex-col items-start p-3 border-b border-gray-200 hover:bg-gray-50"
-              key={item.id}
-            >
-              <div className="flex items-center w-full">
-                <Avatar
-                  className="bg-blue-500"
-                  icon={<User className="w-4 h-4 text-white" />}
-                />
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-800">
-                    {item.message}
-                  </p>
-                  <p className="text-xs text-gray-500">{item.time}</p>
-                </div>
-              </div>
-              {item.status === "pending" && (
-                <div className="flex space-x-2 mt-2">
-                  <Button
-                    type="primary"
-                    size="small"
-                    className="bg-green-500 hover:bg-green-600"
-                    onClick={() =>
-                      handleNotificationAction(item.id, "accepted")
-                    }
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    type="default"
-                    size="small"
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                    onClick={() =>
-                      handleNotificationAction(item.id, "rejected")
-                    }
-                  >
-                    Reject
-                  </Button>
-                </div>
-              )}
-              {item.status !== "pending" && (
-                <p
-                  className={`text-xs mt-2 ${
-                    item.status === "accepted"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                </p>
-              )}
-            </List.Item>
-          )}
-        />
-      )}
+      {notifications.map((notification) => (
+        <div
+          key={notification.id}
+          className="py-1 text-sm text-gray-600 border-b border-gray-200 last:border-b-0"
+        >
+          {notification.message}
+        </div>
+      ))}
     </div>
   );
+
   return (
-    <Layout className="h-screen">
-      <Header
-        className="fixed top-0 left-0 right-0 z-10 flex justify-between items-center px-6 bg-transparent"
-        style={{
-          marginLeft: isCollapsed ? 80 : 256,
-          height: 64,
-          lineHeight: "64px",
-        }}
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Header */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-20 flex justify-between items-center px-6 py-4  transition-all duration-300 ${
+          isCollapsed ? "ml-20" : "ml-64"
+        }`}
       >
         <div className="text-xl font-bold text-gray-800"></div>
-
         <div className="flex items-center space-x-4">
-          <Popover
-            content={notificationContent}
-            trigger="click"
-            placement="bottomRight"
-            overlayClassName="notification-popover"
-          >
+          <div className="relative group">
             <div className="relative cursor-pointer">
-              <Badge
-                count={
-                  notifications.filter((n) => n.status === "pending").length
-                }
-                className="text-gray-600"
-              >
-                <Bell className="w-6 h-6 hover:text-blue-500 transition-colors" />
-              </Badge>
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                {notifications.filter((n) => n.status === "pending").length}
+              </span>
+              <Bell className="w-6 h-6 text-gray-600 hover:text-blue-500 transition-colors" />
             </div>
-          </Popover>
+            <div className="absolute right-0 mt-2 hidden group-hover:block bg-white rounded-lg shadow-lg p-4 max-w-xs">
+              {notificationContent}
+            </div>
+          </div>
         </div>
-      </Header>
-      <Sider
-        width={256}
-        collapsible
-        collapsed={isCollapsed}
-        onCollapse={(collapsed) => setIsCollapsed(collapsed)}
-        className="bg-gradient-to-b from-red-900 to-gray-800 text-white"
-        theme="dark"
-        style={{
-          // ...siderStyle,
-          position: "fixed",
-          left: 0,
-          top: 0,
-          height: "100vh",
-          overflowY: "auto",
-        }}
+      </header>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-gradient-to-b from-red-900 to-gray-800 text-white shadow-lg transition-all duration-300 ${
+          isCollapsed ? "w-20" : "w-64"
+        } overflow-y-auto rounded-r-3xl z-10 flex flex-col`}
       >
-        <div className="p-4 border-b border-gray-700">
+        {/* Logo Section */}
+        <div className="p-4 border-b border-gray-700 flex items-center">
           <div className="flex items-center space-x-3">
             <img
               src="/voxpro.ico"
@@ -255,48 +124,96 @@ const OwnerSidebar = () => {
           </div>
         </div>
 
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div
-              className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center cursor-pointer"
-              onClick={() => navigate("/accountSettings")}
-            >
-              <User className="w-6 h-6 text-white" />
+        {/* User Profile Section */}
+        <div className="p-1 border-b border-white/10">
+          <div
+            className="group flex items-center space-x-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            onClick={() => navigate("/accountSettings")}
+          >
+            <div className="relative">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
+              </div>
             </div>
             {!isCollapsed && (
-              <div>
-                <div className="text-sm font-medium text-white">John</div>{" "}
-                <div className="text-xs text-gray-400">CHess</div>
+              <div className="flex-1 overflow-hidden">
+                <div className="text-sm font-semibold text-white group-hover:text-blue-200 transition-colors">
+                  John Doe
+                </div>
+                <div className="text-xs text-white/60 group-hover:text-white/80 transition-colors">
+                  Fleet Manager
+                </div>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-xs text-green-400">Online</span>
+                </div>
               </div>
+            )}
+            {!isCollapsed && (
+              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/80 transition-all group-hover:translate-x-1" />
             )}
           </div>
         </div>
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          theme="dark"
-          items={items}
-          style={menuStyle}
-          onClick={(info) => {
-            const route = info.item.props.route;
-            if (route) navigate(route);
-          }}
-        />
-      </Sider>
-      <Layout style={{ marginLeft: `${isCollapsed ? 80 : 256}px` }}>
-        <Content
-          className="p-2 bg-gray-100 thin-chat-scrollbar"
-          style={{
-            height: "100vh",
-            overflowY: "auto",
-            paddingTop: 64,
-          }}
-        >
+
+        {/* Menu Items */}
+        <div className="mt-4 flex-1">
+          {menuItems.map((item) => (
+            <div
+              key={item.key}
+              className={`flex items-center p-4 cursor-pointer hover:bg-gray-700 transition-colors ${
+                activeKey === item.key ? "bg-gray-700" : ""
+              }`}
+              onClick={() => {
+                if (item.route === "/logout") {
+                  handleLogout();
+                } else if (item.route) {
+                  navigate(item.route);
+                }
+              }}
+            >
+              <div className={item.color}>{item.icon}</div>
+              {!isCollapsed && (
+                <div className="ml-3">
+                  <div className="text-sm font-medium text-white">
+                    {item.label}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {item.description}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Toggle Button at Bottom */}
+        <div className="p-4 border-t border-gray-700">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="text-white focus:outline-none w-full flex justify-center"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-5 h-5" />
+            ) : (
+              <ChevronLeft className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 p-6 pt-20 transition-all duration-300 bg-gray-100`}
+        style={{ marginLeft: isCollapsed ? 80 : 256 }}
+      >
+        <div className="min-h-screen overflow-y-auto">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </div>
+    </div>
   );
 };
 

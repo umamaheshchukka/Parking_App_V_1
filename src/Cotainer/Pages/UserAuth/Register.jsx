@@ -14,29 +14,29 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Form, Input, Button, Radio, Checkbox, Spin, message } from "antd";
-import { ImageCarousel } from "./ImageShow"; // Adjust path as needed
+import { ImageCarousel } from "./ImageShow";
+import { startRegUser } from "../../../Actions/Auth/Auth";
+import { useDispatch } from "react-redux";
 
 const AdvancedRegisterComponent = () => {
   const [form] = Form.useForm();
-  const [isOtpStage, setIsOtpStage] = useState(true);
+  const [isOtpStage, setIsOtpStage] = useState(false);
   const [email, setEmail] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
   const handleSubmit = async (values) => {
-    setLoading(true);
     setEmail(values.email);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setIsOtpStage(true);
-      message.success("OTP sent to your email!");
-    }, 1500);
+    dispatch(startRegUser(values)).then((res) => {
+      if (res?.meta?.requestStatus === "fulfilled") {
+        setIsOtpStage(true);
+        message.success("OTP sent to your email!");
+      }
+    });
   };
 
   const handleOtpSubmit = () => {
-    if (otpValue.length === 6 && /^\d{6}$/.test(otpValue)) {
+    if (otpValue.length === 4 && /^\d{4}$/.test(otpValue)) {
       setLoading(true);
       // Simulate OTP verification
       setTimeout(() => {
@@ -131,30 +131,48 @@ const AdvancedRegisterComponent = () => {
                           min: 6,
                           message: "Password must be at least 6 characters",
                         },
+                        {
+                          validator: (_, value) => {
+                            if (!value) {
+                              return Promise.reject("Password is required");
+                            }
+
+                            // Regex checks
+                            const uppercase =
+                              (value.match(/[A-Z]/g) || []).length >= 2;
+                            const lowercase =
+                              (value.match(/[a-z]/g) || []).length >= 2;
+                            const numbers =
+                              (value.match(/[0-9]/g) || []).length >= 2;
+                            const symbol = /[^A-Za-z0-9]/.test(value);
+
+                            if (!uppercase) {
+                              return Promise.reject(
+                                "Password must contain at least 2 uppercase letters"
+                              );
+                            }
+                            if (!lowercase) {
+                              return Promise.reject(
+                                "Password must contain at least 2 lowercase letters"
+                              );
+                            }
+                            if (!numbers) {
+                              return Promise.reject(
+                                "Password must contain at least 2 numbers"
+                              );
+                            }
+                            if (!symbol) {
+                              return Promise.reject(
+                                "Password must contain at least 1 special symbol"
+                              );
+                            }
+
+                            return Promise.resolve();
+                          },
+                        },
                       ]}
                     >
-                      <Input
-                        prefix={<Lock className="w-4 h-4 text-purple-500" />}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a secure password"
-                        className="rounded-xl border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70 backdrop-blur-sm py-2 sm:py-3 text-xs sm:text-sm"
-                        suffix={
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="text-gray-400 hover:text-gray-600"
-                            aria-label={
-                              showPassword ? "Hide password" : "Show password"
-                            }
-                          >
-                            {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </button>
-                        }
-                      />
+                      <Input.Password placeholder="Enter your password" />
                     </Form.Item>
 
                     {/* Phone Field */}
@@ -307,11 +325,11 @@ const AdvancedRegisterComponent = () => {
                       value={otpValue}
                       onChange={(e) =>
                         setOtpValue(
-                          e.target.value.replace(/\D/g, "").slice(0, 6)
+                          e.target.value.replace(/\D/g, "").slice(0, 4)
                         )
                       }
                       placeholder="000000"
-                      maxLength={6}
+                      maxLength={4}
                       className="rounded-xl border-2 border-gray-200 hover:border-green-300 focus:border-green-500 bg-white/70 backdrop-blur-sm py-3 sm:py-4 text-center text-xl sm:text-2xl font-mono tracking-[0.4em]"
                     />
                     <p className="text-center text-xs text-gray-500">
@@ -329,7 +347,7 @@ const AdvancedRegisterComponent = () => {
                   <Button
                     type="primary"
                     onClick={handleOtpSubmit}
-                    disabled={loading || otpValue.length !== 6}
+                    disabled={loading || otpValue.length !== 4}
                     className="w-full py-2 sm:py-3 bg-gradient-to-r from-green-600 via-green-700 to-emerald-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-300"
                   >
                     {loading ? (
