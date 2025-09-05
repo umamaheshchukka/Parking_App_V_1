@@ -23,6 +23,7 @@ import OwnerBookings from "./Cotainer/Pages/Owner/Bookings/OwnerBookings.jsx";
 import AccountSettings from "./Cotainer/Pages/AccountSettings/AccountSettings";
 import SlotBooking from "./Cotainer/Pages/User/Bookings/SlotBookings";
 import AdminDashboard from "./Cotainer/Pages/Admin/AdminDashboard.jsx";
+import ParkingSpaceManagement from "./Cotainer/Pages/Owner/OwnerParkingAreas/PlacessManagement.jsx";
 
 // PrivateRoute component to protect routes
 const PrivateRoute = ({ element }) => {
@@ -86,6 +87,14 @@ const mainRoutes = [
       {
         path: "adminDashboard",
         element: <PrivateRoute element={<AdminDashboard />} />,
+      },
+      {
+        path: "ParkingSpaceAdd",
+        element: <PrivateRoute element={<ParkingSpaceManagement />} />,
+      },
+      {
+        path: "ParkingSpaceEdit",
+        element: <PrivateRoute element={<ParkingSpaceManagement />} />,
       },
     ],
   },
